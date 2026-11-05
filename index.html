@@ -200,6 +200,28 @@ tailwind.config = {
       </div>
     </main>
 
+    <!-- STOK & OPNAME -->
+    <main id="view-stok" class="view-section p-4">
+      <h2 class="text-lg font-semibold mb-3">Stok Bahan</h2>
+      <div class="flex gap-3 mb-3">
+        <button onclick="openOpnameModal()" class="flex-1 bg-brand-500 text-white py-3 rounded-xl shadow-md font-semibold flex justify-center items-center gap-2 active:scale-95 transition"><i class="ph-bold ph-clipboard-text"></i> Stock Opname</button>
+        <button onclick="openStockInModal()" class="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl shadow-sm font-semibold flex justify-center items-center gap-2 active:scale-95 transition"><i class="ph-bold ph-plus"></i> Stok Masuk</button>
+      </div>
+      <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar" id="stok-tabs"></div>
+
+      <div id="stok-content-stok" class="space-y-3">
+        <div id="stok-summary" class="bg-brand-50 text-brand-700 p-3 rounded-xl text-xs"></div>
+        <div class="relative text-gray-500">
+          <i class="ph ph-magnifying-glass absolute left-3 top-2.5"></i>
+          <input type="text" id="search-stok" placeholder="Cari bahan..." class="inp pl-9" oninput="renderStokList()">
+        </div>
+        <div id="stok-list" class="grid grid-cols-1 gap-2"></div>
+        <p class="text-[10px] text-gray-400">Stok sistem = hasil hitung opname terakhir + stok masuk - pemakaian dari penjualan (menurut resep dan kemasan). Isi takaran resep dan lakukan opname pertama supaya angkanya akurat. Ketuk bahan untuk mencatat stok masuk.</p>
+      </div>
+      <div id="stok-content-opname" class="hidden"><div id="opname-list" class="grid grid-cols-1 gap-2"></div></div>
+      <div id="stok-content-in" class="hidden"><div id="stockin-list" class="grid grid-cols-1 gap-2"></div></div>
+    </main>
+
     <!-- 5. MENU -->
     <main id="view-menu" class="view-section p-4">
       <div class="flex justify-between items-center mb-3">
@@ -262,12 +284,12 @@ tailwind.config = {
         <h3 class="font-semibold text-sm border-b pb-2">HPP & Target</h3>
         <div>
           <label class="lbl">Target Margin Laba (%)</label>
-          <input type="number" inputmode="decimal" id="set-margin" class="inp" placeholder="50">
+          <input type="text" inputmode="decimal" autocomplete="off" id="set-margin" class="inp" placeholder="50">
           <p class="text-[10px] text-gray-400 mt-1">Menu dengan margin di bawah angka ini akan diberi peringatan.</p>
         </div>
         <div>
           <label class="lbl">Biaya Operasional Default (Rp per porsi)</label>
-          <input type="number" inputmode="decimal" id="set-opcost" class="inp" placeholder="1000">
+          <input type="text" inputmode="decimal" autocomplete="off" id="set-opcost" class="inp" placeholder="1000">
           <p class="text-[10px] text-gray-400 mt-1">Estimasi gas, listrik, dll per porsi. Kemasan dihitung terpisah di HPP &amp; Resep &gt; Kemasan. Bisa di-override per menu.</p>
         </div>
         <div>
@@ -281,9 +303,9 @@ tailwind.config = {
         <h3 class="font-semibold text-sm border-b pb-2">Potongan Platform Online</h3>
         <p class="text-[10px] text-gray-400">Persentase potongan default tiap platform. Saat mencatat penjualan online angkanya bisa diubah per transaksi sesuai nota di aplikasi.</p>
         <div class="grid grid-cols-3 gap-2">
-          <div><label class="lbl">GoFood (%)</label><input type="number" inputmode="decimal" step="any" id="set-comm-GoFood" class="inp" placeholder="0"></div>
-          <div><label class="lbl">GrabFood (%)</label><input type="number" inputmode="decimal" step="any" id="set-comm-GrabFood" class="inp" placeholder="0"></div>
-          <div><label class="lbl">ShopeeFood (%)</label><input type="number" inputmode="decimal" step="any" id="set-comm-ShopeeFood" class="inp" placeholder="0"></div>
+          <div><label class="lbl">GoFood (%)</label><input type="text" inputmode="decimal" autocomplete="off" step="any" id="set-comm-GoFood" class="inp" placeholder="0"></div>
+          <div><label class="lbl">GrabFood (%)</label><input type="text" inputmode="decimal" autocomplete="off" step="any" id="set-comm-GrabFood" class="inp" placeholder="0"></div>
+          <div><label class="lbl">ShopeeFood (%)</label><input type="text" inputmode="decimal" autocomplete="off" step="any" id="set-comm-ShopeeFood" class="inp" placeholder="0"></div>
         </div>
       </div>
 
@@ -323,6 +345,7 @@ tailwind.config = {
     <button data-tab="penjualan" onclick="switchTab('penjualan')" class="nav-btn min-w-[68px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-receipt text-xl"></i><span>Penjualan</span></button>
     <button data-tab="pengeluaran" onclick="switchTab('pengeluaran')" class="nav-btn min-w-[76px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-trend-down text-xl"></i><span>Pengeluaran</span></button>
     <button data-tab="hpp" onclick="switchTab('hpp')" class="nav-btn min-w-[78px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-calculator text-xl"></i><span>HPP & Resep</span></button>
+    <button data-tab="stok" onclick="switchTab('stok')" class="nav-btn min-w-[60px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-clipboard-text text-xl"></i><span>Stok</span></button>
     <button data-tab="menu" onclick="switchTab('menu')" class="nav-btn min-w-[60px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-hamburger text-xl"></i><span>Menu</span></button>
     <button data-tab="laporan" onclick="switchTab('laporan')" class="nav-btn min-w-[68px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-chart-bar text-xl"></i><span>Laporan</span></button>
     <button data-tab="pengaturan" onclick="switchTab('pengaturan')" class="nav-btn min-w-[76px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-gear text-xl"></i><span>Pengaturan</span></button>
@@ -357,7 +380,7 @@ tailwind.config = {
           <label class="lbl">Diskon</label>
           <div class="flex gap-2">
             <select id="pos-disc-type" class="inp w-24" onchange="posCalculateFinal()"><option value="Rp">Rp</option><option value="%">%</option></select>
-            <input type="number" inputmode="decimal" id="pos-discount" class="inp text-right" value="0" min="0" oninput="posCalculateFinal()">
+            <input type="text" inputmode="decimal" autocomplete="off" id="pos-discount" class="inp text-right" value="0" min="0" oninput="posCalculateFinal()">
           </div>
           <div class="flex justify-between text-xs text-gray-500 mt-1"><span>Potongan</span><span id="pos-disc-amount">Rp 0</span></div>
           <div class="flex justify-between text-lg font-bold mt-3 border-t pt-2 text-brand-600"><span>Total Bayar</span><span id="pos-final-total">Rp 0</span></div>
@@ -367,7 +390,7 @@ tailwind.config = {
             <p class="text-xs font-semibold text-orange-700 mb-2">Potongan <span id="pos-platform-name"></span></p>
             <div class="flex gap-2">
               <select id="pos-comm-type" class="inp w-24" onchange="posCalculateFinal()"><option value="%">%</option><option value="Rp">Rp</option></select>
-              <input type="number" inputmode="decimal" step="any" id="pos-comm-val" class="inp text-right" min="0" oninput="posCalculateFinal()">
+              <input type="text" inputmode="decimal" autocomplete="off" step="any" id="pos-comm-val" class="inp text-right" min="0" oninput="posCalculateFinal()">
             </div>
             <div class="flex justify-between text-xs text-gray-600 mt-2"><span>Potongan platform</span><span id="pos-comm-amount">- Rp 0</span></div>
             <div class="flex justify-between text-sm font-bold text-orange-700 mt-1"><span>Diterima bersih</span><span id="pos-net-received">Rp 0</span></div>
@@ -375,7 +398,7 @@ tailwind.config = {
           </div>
           <div>
             <label class="lbl">Biaya Kemasan (otomatis, bisa diubah)</label>
-            <input type="number" inputmode="decimal" id="pos-pack" class="inp" min="0" oninput="posPackManual = Number(this.value) || 0">
+            <input type="text" inputmode="decimal" autocomplete="off" id="pos-pack" class="inp" min="0" oninput="posPackManual = num(this.value, true) || 0">
             <p class="text-[10px] text-gray-400 mt-1" id="pos-pack-hint"></p>
           </div>
           <div id="pos-pay-box">
@@ -399,7 +422,7 @@ tailwind.config = {
         <input type="hidden" id="exp-id">
         <div><label class="lbl">Tanggal</label><input type="date" id="exp-date" required class="inp"></div>
         <div><label class="lbl">Kategori</label><select id="exp-category" required class="inp"></select></div>
-        <div><label class="lbl">Nominal (Rp)</label><input type="number" inputmode="decimal" id="exp-amount" required min="0" class="inp"></div>
+        <div><label class="lbl">Nominal (Rp)</label><input type="text" inputmode="decimal" autocomplete="off" id="exp-amount" required min="0" class="inp"></div>
         <div><label class="lbl">Keterangan</label><input type="text" id="exp-note" required class="inp" placeholder="Contoh: beli daging 10 kg"></div>
         <div><label class="lbl">Metode Pembayaran</label><select id="exp-method" class="inp"><option>Tunai</option><option>Transfer</option><option>QRIS</option></select></div>
         <div class="flex gap-2 pt-2">
@@ -427,9 +450,10 @@ tailwind.config = {
             </select></div>
           <div><label class="lbl">Satuan Resep</label><input type="text" id="ingr-baseUnit" required class="inp" placeholder="gram / ml / pcs" oninput="previewIngrCost()"></div>
         </div>
-        <div><label class="lbl">Isi per kemasan beli (dalam satuan resep)</label><input type="number" inputmode="decimal" id="ingr-qty" required min="0.0001" step="any" class="inp" placeholder="Contoh: 1000 (jika 1 kg = 1000 gram)" oninput="previewIngrCost()"></div>
-        <div><label class="lbl">Harga Beli per Kemasan (Rp)</label><input type="number" inputmode="decimal" id="ingr-price" required min="0" class="inp" oninput="previewIngrCost()"></div>
+        <div><label class="lbl">Isi per kemasan beli (dalam satuan resep, desimal pakai koma: 0,5)</label><input type="text" inputmode="decimal" autocomplete="off" id="ingr-qty" required min="0.0001" step="any" class="inp" placeholder="Contoh: 1000 (jika 1 kg = 1000 gram)" oninput="previewIngrCost()"></div>
+        <div><label class="lbl">Harga Beli per Kemasan (Rp)</label><input type="text" inputmode="decimal" autocomplete="off" id="ingr-price" required min="0" class="inp" oninput="previewIngrCost()"></div>
         <div class="bg-brand-50 text-brand-700 text-xs p-2 rounded-lg" id="ingr-preview">Harga per satuan: -</div>
+        <div><label class="lbl">Stok minimum (opsional, satuan resep)</label><input type="text" inputmode="decimal" autocomplete="off" id="ingr-min" class="inp" placeholder="Peringatan muncul bila stok sistem di bawah ini"></div>
         <div><label class="lbl">Catatan (opsional)</label><input type="text" id="ingr-note" class="inp"></div>
         <div id="ingr-history" class="hidden text-xs text-gray-600 border-t pt-2"></div>
         <button type="submit" class="w-full bg-brand-500 text-white py-2.5 rounded-xl font-bold">Simpan Bahan</button>
@@ -451,13 +475,14 @@ tailwind.config = {
           <div>
             <label class="lbl">Hasil satu batch (yield)</label>
             <div class="flex gap-2">
-              <input type="number" inputmode="decimal" id="rec-yield-qty" class="inp w-2/3" placeholder="Jumlah hasil" oninput="ed.yieldQty=Number(this.value)||0; refreshEditor()">
+              <input type="text" inputmode="decimal" autocomplete="off" id="rec-yield-qty" class="inp w-2/3" placeholder="Jumlah hasil" oninput="ed.yieldQty=num(this.value)||0; refreshEditor()">
               <input type="text" id="rec-yield-unit" class="inp w-1/3" placeholder="gram" oninput="ed.yieldUnit=this.value">
             </div>
           </div>
         </div>
 
-        <h4 class="font-semibold text-sm mb-2">Komponen Resep</h4>
+        <h4 class="font-semibold text-sm mb-1">Komponen Resep</h4>
+        <p class="text-[10px] text-gray-400 mb-2">Untuk angka desimal pakai koma, contoh 0,5</p>
         <div id="rec-components" class="space-y-2 mb-3"></div>
         <div class="flex gap-2 mb-4">
           <select id="rec-add-select" class="inp flex-1"></select>
@@ -469,18 +494,18 @@ tailwind.config = {
           <div>
             <label class="lbl font-semibold">Biaya Operasional per Porsi</label>
             <label class="flex gap-2 items-center text-xs text-gray-600"><input type="checkbox" id="rec-opcost-default" onchange="toggleOpCost()" class="w-4 h-4"> Pakai default global (<span id="lbl-default-opcost"></span>)</label>
-            <input type="number" inputmode="decimal" id="rec-opcost-val" class="inp mt-1" oninput="refreshEditor()">
+            <input type="text" inputmode="decimal" autocomplete="off" id="rec-opcost-val" class="inp mt-1" oninput="refreshEditor()">
           </div>
 
           <div class="bg-brand-50 p-3 rounded-xl border border-brand-100">
             <p class="text-xs font-semibold text-brand-700 mb-2">Harga Jual & Simulasi</p>
             <div class="flex justify-between text-sm mb-2"><span>Total HPP / porsi</span><span id="sim-hpp" class="font-bold">Rp 0</span></div>
             <label class="lbl">Harga Jual Offline (Rp) - tersimpan</label>
-            <input type="number" inputmode="decimal" id="sim-price" class="inp" oninput="refreshEditor()">
+            <input type="text" inputmode="decimal" autocomplete="off" id="sim-price" class="inp" oninput="refreshEditor()">
             <label class="lbl mt-2">Harga Jual Online (Rp) - kosong = sama dengan offline</label>
-            <input type="number" inputmode="decimal" id="sim-online-price" class="inp" oninput="refreshEditor()">
+            <input type="text" inputmode="decimal" autocomplete="off" id="sim-online-price" class="inp" oninput="refreshEditor()">
             <label class="lbl mt-2">Simulasi: harga semua bahan naik/turun (%) - tidak disimpan</label>
-            <input type="number" inputmode="decimal" id="sim-mult" class="inp" value="0" oninput="refreshEditor()">
+            <input type="text" inputmode="decimal" autocomplete="off" id="sim-mult" class="inp" value="0" oninput="refreshEditor()">
             <div class="flex justify-between text-sm mt-3 pt-2 border-t border-brand-200"><span>Laba per porsi</span><span id="sim-profit" class="font-bold text-green-600">Rp 0</span></div>
             <div class="flex justify-between text-xs mt-1"><span>Margin: <b id="sim-margin">0%</b></span><span>Food cost: <b id="sim-fc">0%</b></span></div>
             <p id="sim-warn" class="text-[10px] text-red-600 mt-1"></p>
@@ -491,7 +516,7 @@ tailwind.config = {
             <p class="text-xs font-semibold text-green-700 mb-2">Saran Harga Jual</p>
             <div class="flex gap-2">
               <select id="sug-mode" class="inp w-1/2" onchange="refreshEditor()"><option value="margin">Target margin</option><option value="fc">Target food cost</option></select>
-              <input type="number" inputmode="decimal" id="sug-target" class="inp w-1/2" placeholder="%" oninput="refreshEditor()">
+              <input type="text" inputmode="decimal" autocomplete="off" id="sug-target" class="inp w-1/2" placeholder="%" oninput="refreshEditor()">
             </div>
             <div class="flex justify-between items-center mt-2 text-sm">
               <span>Saran: <b id="sug-price">-</b></span>
@@ -503,6 +528,57 @@ tailwind.config = {
       <div class="shrink-0 bg-white border-t p-4 shadow-[0_-10px_20px_rgba(0,0,0,0.1)] flex gap-2">
         <button id="rec-delete-btn" onclick="deleteBaseRecipe()" class="hidden bg-red-50 text-red-600 px-4 rounded-xl font-semibold"><i class="ph-bold ph-trash"></i></button>
         <button onclick="saveRecipe()" class="flex-1 bg-brand-500 text-white py-3 rounded-xl font-bold active:scale-95 transition">Simpan Resep</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: STOCK OPNAME -->
+  <div id="modal-opname" class="hidden fixed inset-0 z-50 bg-black/50 flex flex-col justify-end">
+    <div class="bg-white w-full max-w-[480px] mx-auto rounded-t-2xl h-[95vh] flex flex-col overflow-hidden">
+      <div class="p-4 border-b flex justify-between items-center shrink-0">
+        <div><h3 class="font-bold text-lg">Stock Opname</h3><p class="text-xs text-gray-500">Isi stok fisik hasil hitung. Kosongkan bahan yang tidak dihitung.</p></div>
+        <button onclick="closeModal('modal-opname')" class="text-gray-500"><i class="ph-bold ph-x"></i></button>
+      </div>
+      <div class="px-4 pt-3 shrink-0 space-y-2">
+        <input type="text" id="op-search" placeholder="Cari bahan..." class="inp" oninput="renderOpnameRows()">
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="lbl">Tanggal & Jam</label><input type="datetime-local" id="op-date" class="inp"></div>
+          <div><label class="lbl">Catatan (opsional)</label><input type="text" id="op-note" class="inp"></div>
+        </div>
+        <p class="text-[10px] text-gray-400">Desimal pakai koma, contoh 2,5</p>
+      </div>
+      <div class="flex-1 overflow-y-auto p-4 space-y-2" id="op-rows"></div>
+      <div class="shrink-0 bg-white border-t p-4 shadow-[0_-10px_20px_rgba(0,0,0,0.1)]">
+        <div class="flex justify-between text-sm mb-2"><span id="op-count">0 bahan dihitung</span><span id="op-total" class="font-bold"></span></div>
+        <button onclick="saveOpname()" class="w-full bg-brand-500 text-white py-3 rounded-xl font-bold active:scale-95 transition">Simpan Opname</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DETAIL OPNAME -->
+  <div id="modal-opdetail" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg">Detail Opname</h3><button onclick="closeModal('modal-opdetail')" class="text-gray-500"><i class="ph-bold ph-x"></i></button></div>
+      <div id="opd-body" class="text-sm space-y-2 mb-3"></div>
+      <button onclick="deleteOpname()" class="w-full bg-red-50 text-red-600 py-2 rounded-xl text-sm font-semibold">Hapus Opname Ini</button>
+    </div>
+  </div>
+
+  <!-- MODAL: STOK MASUK -->
+  <div id="modal-stockin" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg">Stok Masuk (Pembelian)</h3><button onclick="closeModal('modal-stockin')" class="text-gray-500"><i class="ph-bold ph-x"></i></button></div>
+      <div class="space-y-3">
+        <div><label class="lbl">Bahan</label><select id="si-ing" class="inp" onchange="siUnits()"></select></div>
+        <div class="flex gap-2">
+          <div class="w-2/5"><label class="lbl">Jumlah</label><input type="text" inputmode="decimal" autocomplete="off" id="si-qty" class="inp" oninput="siPreview()"></div>
+          <div class="flex-1"><label class="lbl">Satuan</label><select id="si-unit" class="inp" onchange="siPreview()"></select></div>
+        </div>
+        <p id="si-preview" class="text-xs text-brand-700 bg-brand-50 rounded-lg p-2 min-h-[1.75rem]"></p>
+        <div><label class="lbl">Tanggal & Jam</label><input type="datetime-local" id="si-date" class="inp"></div>
+        <div><label class="lbl">Catatan (opsional)</label><input type="text" id="si-note" class="inp" placeholder="Contoh: beli di pasar"></div>
+        <button onclick="saveStockIn()" class="w-full bg-brand-500 text-white py-2.5 rounded-xl font-bold">Simpan Stok Masuk</button>
+        <p class="text-[10px] text-gray-400">Ini hanya menambah stok. Catat uang pembelian di tab Pengeluaran (kategori Bahan Baku).</p>
       </div>
     </div>
   </div>
@@ -527,13 +603,13 @@ tailwind.config = {
         <input type="hidden" id="menu-id">
         <div><label class="lbl">Nama Menu</label><input type="text" id="menu-name" required class="inp"></div>
         <div><label class="lbl">Kategori</label><select id="menu-category" class="inp" onchange="$('menu-usepack').checked = ['Burger','Paket'].includes(this.value)"></select></div>
-        <div><label class="lbl">Harga Jual Offline (Dine In / Take Away)</label><input type="number" inputmode="decimal" id="menu-price" min="0" required class="inp"></div>
-        <div><label class="lbl">Harga Jual Online (GoFood / GrabFood / ShopeeFood)</label><input type="number" inputmode="decimal" id="menu-online-price" min="0" class="inp" placeholder="Kosongkan = sama dengan harga offline"></div>
+        <div><label class="lbl">Harga Jual Offline (Dine In / Take Away)</label><input type="text" inputmode="decimal" autocomplete="off" id="menu-price" min="0" required class="inp"></div>
+        <div><label class="lbl">Harga Jual Online (GoFood / GrabFood / ShopeeFood)</label><input type="text" inputmode="decimal" autocomplete="off" id="menu-online-price" min="0" class="inp" placeholder="Kosongkan = sama dengan harga offline"></div>
         <label class="flex gap-2 items-center text-sm"><input type="checkbox" id="menu-usepack" class="w-4 h-4" checked> Pakai kemasan (centang untuk burger, kosongkan untuk add on)</label>
         <label class="flex gap-2 items-center text-sm"><input type="checkbox" id="menu-hasRecipe" class="w-4 h-4" onchange="toggleMenuRecipe()"> Hitung HPP dari resep</label>
         <div>
           <label class="lbl">Harga Modal / HPP (Rp)</label>
-          <input type="number" inputmode="decimal" id="menu-hpp" min="0" class="inp">
+          <input type="text" inputmode="decimal" autocomplete="off" id="menu-hpp" min="0" class="inp">
           <button type="button" id="menu-see-recipe" onclick="openRecipeFromMenu()" class="hidden mt-1 text-xs text-brand-600 font-medium">Lihat / edit resep</button>
         </div>
         <label class="flex gap-2 items-center text-sm"><input type="checkbox" id="menu-active" class="w-4 h-4" checked> Menu aktif (tampil di kasir)</label>
@@ -549,13 +625,13 @@ tailwind.config = {
       <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg">Kas Harian (Tutup Kasir)</h3><button onclick="closeModal('modal-kas')" class="text-gray-500"><i class="ph-bold ph-x"></i></button></div>
       <div class="space-y-3">
         <div><label class="lbl">Tanggal</label><input type="date" id="kas-date" class="inp" onchange="loadKas()"></div>
-        <div><label class="lbl">Modal Awal Kas (Rp)</label><input type="number" inputmode="decimal" id="kas-open" min="0" class="inp" oninput="calcKas()"></div>
+        <div><label class="lbl">Modal Awal Kas (Rp)</label><input type="text" inputmode="decimal" autocomplete="off" id="kas-open" min="0" class="inp" oninput="calcKas()"></div>
         <div class="bg-gray-50 rounded-xl p-3 text-sm space-y-1">
           <div class="flex justify-between"><span>Penjualan tunai</span><span id="kas-sales">Rp 0</span></div>
           <div class="flex justify-between"><span>Pengeluaran tunai</span><span id="kas-exp">- Rp 0</span></div>
           <div class="flex justify-between font-semibold border-t pt-1"><span>Uang seharusnya ada</span><span id="kas-expected">Rp 0</span></div>
         </div>
-        <div><label class="lbl">Uang Tunai Fisik di Laci (Rp)</label><input type="number" inputmode="decimal" id="kas-actual" min="0" class="inp" oninput="calcKas()"></div>
+        <div><label class="lbl">Uang Tunai Fisik di Laci (Rp)</label><input type="text" inputmode="decimal" autocomplete="off" id="kas-actual" min="0" class="inp" oninput="calcKas()"></div>
         <div id="kas-diff" class="rounded-xl p-3 text-sm font-semibold text-center bg-gray-50 text-gray-500">Isi uang fisik untuk melihat selisih</div>
         <button onclick="saveKas()" class="w-full bg-brand-500 text-white py-2.5 rounded-xl font-bold">Simpan Tutup Kasir</button>
         <div id="kas-history" class="text-xs text-gray-600 border-t pt-2"></div>
@@ -637,6 +713,18 @@ const idr2 = new Intl.NumberFormat('id-ID', { style:'currency', currency:'IDR', 
 const formatIDR = (n) => idr.format(Math.round(n || 0));
 const formatIDR2 = (n) => idr2.format(n || 0);
 const fmtQty = (n) => Number(n || 0).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+// Baca angka dari kolom isian. Menerima koma sebagai desimal (0,5) dan titik (0.5).
+// money=true: titik dianggap pemisah ribuan bila polanya 1.500 / 12.500.000
+function num(v, money) {
+  if (typeof v === 'number') return v;
+  let s = String(v ?? '').trim().replace(/\s/g, '');
+  if (s === '') return 0;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  else if (money && /^[1-9]\d{0,2}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+  return /^-?(\d+\.?\d*|\.\d+)$/.test(s) ? Number(s) : NaN;
+}
+// Tampilkan angka di kolom isian dengan koma desimal
+const dec = (n) => (n === '' || n === null || n === undefined) ? '' : String(n).replace('.', ',');
 const sum = (arr, fn) => arr.reduce((a, x) => a + (Number(fn(x)) || 0), 0);
 const genId = (p) => p + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -689,7 +777,7 @@ function defaultData() {
   const wrap = { id:'i23', qty:1, scope:'item' }, box = { id:'i24', qty:1, scope:'item' }, bag = { id:'i25', qty:1, scope:'order' };
   const packaging = { dinein: [wrap], takeaway: [wrap, box, bag], online: [wrap, box, bag] };
   return {
-    ingredients, baseRecipes, menus, packaging, addonsSeeded: true, sales: [], expenses: [], cash: {}, priceHistory: [],
+    ingredients, baseRecipes, menus, packaging, addonsSeeded: true, sales: [], expenses: [], cash: {}, priceHistory: [], stockIns: [], opnames: [],
     settings: { storeName:'Habite Burger', address:'', phone:'', defaultMargin:50, defaultOpCost:1000, excludeCats:['Bahan Baku','Kemasan'], pin:'', packMig:true, commission:{ GoFood:0, GrabFood:0, ShopeeFood:0 } }
   };
 }
@@ -859,6 +947,7 @@ function renderAll() {
   if (currentTab === 'penjualan') renderSales();
   if (currentTab === 'pengeluaran') renderExpenses();
   if (currentTab === 'hpp') { renderHppTabs(); renderHppBahan(); renderHppBase(); renderHppMenu(); renderHppPack(); }
+  if (currentTab === 'stok') renderStok();
   if (currentTab === 'menu') renderMenus();
   if (currentTab === 'laporan') generateReport();
   if (currentTab === 'pengaturan') fillSettings();
@@ -900,6 +989,10 @@ function updateDashboard() {
   // Peringatan menu
   const warns = [];
   data.menus.filter(m => m.active).forEach(m => { const is = menuIssues(m); if (is.length) warns.push(`${m.name}: ${is.join(', ')}`); });
+  if (data.ingredients.some(i => i.minStock > 0)) {
+    const st = computeStock();
+    data.ingredients.forEach(i => { if (isLow(i, st[i.id])) warns.unshift(`Stok ${i.name} hampir habis (${fmtQty(st[i.id].system)} ${i.baseUnit})`); });
+  }
   $('dash-warnings').innerHTML = warns.slice(0, 4).map(w =>
     `<div class="bg-red-50 text-red-700 text-[11px] p-2 rounded border border-red-100 flex items-start gap-1"><i class="ph-fill ph-warning mt-0.5"></i><span>${esc(w)}</span></div>`).join('')
     + (warns.length > 4 ? `<p class="text-[10px] text-gray-400">+${warns.length - 4} peringatan lainnya (lihat tab HPP & Resep)</p>` : '');
@@ -962,14 +1055,14 @@ function openSaleModal(id) {
     s.items.forEach(i => posCart[i.menuId] = { qty: i.qty, price: i.price, hpp: i.hppSnapshot || 0, name: i.name });
     posChannel = channelOf(s);
     $('pos-date').value = s.date.slice(0, 16);
-    $('pos-discount').value = s.discountValue ?? s.discount ?? 0;
+    $('pos-discount').value = dec(s.discountValue ?? s.discount ?? 0);
     $('pos-disc-type').value = s.discountType || 'Rp';
     $('pos-customer').value = s.customer || '';
     $('pos-note').value = s.note || '';
     posPay = OFFLINE_PAY.includes(s.paymentMethod) ? s.paymentMethod : 'Tunai';
     posCommInit = isOnline(posChannel);
     $('pos-comm-type').value = s.commissionType || 'Rp';
-    $('pos-comm-val').value = s.commissionValue ?? s.commission ?? 0;
+    $('pos-comm-val').value = dec(s.commissionValue ?? s.commission ?? 0);
     posPackManual = s.packagingCost || 0;
   } else {
     posChannel = 'Dine In'; posCommInit = false;
@@ -1001,7 +1094,7 @@ function posGoToStep2() {
   $('pos-online-box').classList.toggle('hidden', !online);
   $('pos-pay-box').classList.toggle('hidden', online);
   $('pos-platform-name').innerText = posChannel;
-  if (online && !posCommInit) { $('pos-comm-type').value = '%'; $('pos-comm-val').value = commRate(posChannel) || ''; posCommInit = true; }
+  if (online && !posCommInit) { $('pos-comm-type').value = '%'; $('pos-comm-val').value = dec(commRate(posChannel) || ''); posCommInit = true; }
   renderPayButtons();
   posCalculateFinal();
 }
@@ -1036,7 +1129,7 @@ function updatePosSummary() {
   $('pos-cart-count').innerText = n; $('pos-btn-lanjut').disabled = n === 0;
 }
 function posDiscountAmount() {
-  const sub = posSubtotal(); const v = Number($('pos-discount').value) || 0;
+  const sub = posSubtotal(); const v = num($('pos-discount').value, $('pos-disc-type').value === 'Rp') || 0;
   let amt = $('pos-disc-type').value === '%' ? Math.round(sub * v / 100) : v;
   return Math.min(Math.max(amt, 0), sub);
 }
@@ -1044,7 +1137,7 @@ function posDiscountAmount() {
 function posCommission() {
   if (!isOnline(posChannel)) return 0;
   const base = Math.max(posSubtotal() - posDiscountAmount(), 0);
-  const v = Number($('pos-comm-val').value) || 0;
+  const v = num($('pos-comm-val').value, $('pos-comm-type').value === 'Rp') || 0;
   const amt = $('pos-comm-type').value === '%' ? Math.round(base * v / 100) : v;
   return Math.min(Math.max(amt, 0), base);
 }
@@ -1079,16 +1172,16 @@ function nextInvoice(dateStr) {
 function saveSale() {
   const items = Object.entries(posCart).map(([menuId, c]) => ({ menuId, name: c.name, price: c.price, hppSnapshot: c.hpp, qty: c.qty }));
   if (!items.length) return showToast('Pilih minimal satu menu', 'error');
-  const dv = Number($('pos-discount').value) || 0;
+  const dv = num($('pos-discount').value, $('pos-disc-type').value === 'Rp') || 0;
   if (dv < 0) return showToast('Diskon tidak boleh negatif', 'error');
   if ($('pos-disc-type').value === '%' && dv > 100) return showToast('Diskon persen maksimal 100%', 'error');
   const date = $('pos-date').value;
   if (!date) return showToast('Tanggal & jam wajib diisi', 'error');
   const online = isOnline(posChannel);
-  const commV = Number($('pos-comm-val').value) || 0;
+  const commV = num($('pos-comm-val').value, $('pos-comm-type').value === 'Rp') || 0;
   if (online && commV < 0) return showToast('Potongan tidak boleh negatif', 'error');
   if (online && $('pos-comm-type').value === '%' && commV > 100) return showToast('Potongan persen maksimal 100%', 'error');
-  const pack = Number($('pos-pack').value) || 0;
+  const pack = num($('pos-pack').value, true) || 0;
   if (pack < 0) return showToast('Biaya kemasan tidak boleh negatif', 'error');
   const subtotal = posSubtotal(), disc = posDiscountAmount(), comm = posCommission();
   if (online && comm === 0 && !confirm('Potongan ' + posChannel + ' masih Rp 0. Tetap simpan?')) return;
@@ -1161,7 +1254,7 @@ function openExpenseModal(id) {
 }
 function saveExpense(ev) {
   ev.preventDefault();
-  const amount = Number($('exp-amount').value);
+  const amount = num($('exp-amount').value, true);
   if (!(amount >= 0)) return showToast('Nominal tidak valid', 'error');
   if (!$('exp-note').value.trim()) return showToast('Keterangan wajib diisi', 'error');
   const id = $('exp-id').value;
@@ -1218,11 +1311,11 @@ function autoFillBaseUnit() {
   const u = $('ingr-unit').value;
   const map = { kg: ['gram', 1000], gram: ['gram', 1], liter: ['ml', 1000], ml: ['ml', 1], pcs: ['pcs', 1], ikat: ['ikat', 1], pack: ['pcs', ''] };
   const [bu, q] = map[u] || ['', ''];
-  $('ingr-baseUnit').value = bu; if (q !== '') $('ingr-qty').value = q;
+  $('ingr-baseUnit').value = bu; if (q !== '') $('ingr-qty').value = dec(q);
   previewIngrCost();
 }
 function previewIngrCost() {
-  const q = Number($('ingr-qty').value), p = Number($('ingr-price').value) || 0;
+  const q = num($('ingr-qty').value), p = num($('ingr-price').value, true) || 0;
   $('ingr-preview').innerText = q > 0 ? `Harga per ${$('ingr-baseUnit').value || 'satuan'}: ${formatIDR2(p / q)}` : 'Harga per satuan: -';
 }
 function openIngrModal(id) {
@@ -1232,9 +1325,10 @@ function openIngrModal(id) {
   $('ingr-name').value = i ? i.name : '';
   $('ingr-unit').value = i ? i.purchaseUnit : 'kg';
   $('ingr-baseUnit').value = i ? i.baseUnit : 'gram';
-  $('ingr-qty').value = i ? i.qtyPerPack : 1000;
-  $('ingr-price').value = i ? i.price : '';
+  $('ingr-qty').value = dec(i ? i.qtyPerPack : 1000);
+  $('ingr-price').value = dec(i ? i.price : '');
   $('ingr-note').value = i ? (i.note || '') : '';
+  $('ingr-min').value = dec(i && i.minStock ? i.minStock : '');
   $('ingr-delete-btn').classList.toggle('hidden', !i);
   const hist = i ? data.priceHistory.filter(h => h.ingId === i.id).slice(-5).reverse() : [];
   const hb = $('ingr-history');
@@ -1245,10 +1339,10 @@ function openIngrModal(id) {
 function saveIngredient(e) {
   e.preventDefault();
   const id = $('ingr-id').value;
-  const qty = Number($('ingr-qty').value), price = Number($('ingr-price').value);
+  const qty = num($('ingr-qty').value), price = num($('ingr-price').value, true);
   if (!(qty > 0)) return showToast('Isi per kemasan harus lebih dari 0', 'error');
   if (!(price >= 0)) return showToast('Harga tidak boleh negatif', 'error');
-  const obj = { id: id || genId('i'), name: $('ingr-name').value.trim(), purchaseUnit: $('ingr-unit').value, baseUnit: $('ingr-baseUnit').value.trim(), qtyPerPack: qty, price, note: $('ingr-note').value.trim() };
+  const obj = { id: id || genId('i'), name: $('ingr-name').value.trim(), purchaseUnit: $('ingr-unit').value, baseUnit: $('ingr-baseUnit').value.trim(), qtyPerPack: qty, price, minStock: Math.max(0, num($('ingr-min').value) || 0), note: $('ingr-note').value.trim() };
   if (id) {
     const idx = data.ingredients.findIndex(x => x.id === id);
     const oldP = data.ingredients[idx].price;
@@ -1262,6 +1356,7 @@ function ingrUsage(id) {
   data.baseRecipes.forEach(b => { if (b.ingredients.some(c => c.id === id)) used.push('Resep Dasar ' + b.name); });
   data.menus.forEach(m => { if ((m.recipe || []).some(c => c.type === 'ingredient' && c.id === id)) used.push('Menu ' + m.name); });
   Object.keys(PACK_LABEL).forEach(k => { if (((data.packaging || {})[k] || []).some(c => c.id === id)) used.push('Kemasan ' + PACK_LABEL[k]); });
+  if ((data.stockIns || []).some(x => x.ingId === id)) used.push('Riwayat stok masuk (hapus catatannya di tab Stok)');
   return used;
 }
 function deleteIngredient() {
@@ -1328,7 +1423,7 @@ function renderPackEditor() {
       <button onclick="packRemove(${idx})" class="absolute -right-2 -top-2 bg-red-100 text-red-500 rounded-full w-5 h-5 flex items-center justify-center"><i class="ph-bold ph-minus text-xs"></i></button>
       <div class="font-bold text-gray-700 mb-1 flex justify-between"><span>${i ? esc(i.name) : '(sudah dihapus)'} ${i && i.price === 0 ? '<span class="text-[9px] text-red-500">harga 0</span>' : ''}</span><span class="text-brand-600">${formatIDR2(ingrUnitCost(c.id) * (Number(c.qty) || 0))}</span></div>
       <div class="flex gap-2">
-        <div class="w-24"><label class="text-[10px] text-gray-500">Jumlah</label><input type="number" inputmode="decimal" step="any" value="${c.qty || ''}" onchange="packSet(${idx},'qty',this.value)" class="inp !p-1"></div>
+        <div class="w-24"><label class="text-[10px] text-gray-500">Jumlah</label><input type="text" inputmode="decimal" autocomplete="off" step="any" value="${dec(c.qty || '')}" onchange="packSet(${idx},'qty',this.value)" class="inp !p-1"></div>
         <div class="flex-1"><label class="text-[10px] text-gray-500">Dihitung</label><select onchange="packSet(${idx},'scope',this.value)" class="inp !p-1"><option value="item" ${c.scope !== 'order' ? 'selected' : ''}>Per porsi</option><option value="order" ${c.scope === 'order' ? 'selected' : ''}>Per pesanan</option></select></div>
       </div></div>`;
   }).join('') : '<p class="text-xs text-gray-400 text-center py-3">Belum ada kemasan. Pilih bahan di bawah.</p>';
@@ -1343,7 +1438,7 @@ function packAddRow() {
   packEd.list.push({ id: v, qty: 1, scope: 'item' }); renderPackEditor();
 }
 function packRemove(idx) { packEd.list.splice(idx, 1); renderPackEditor(); }
-function packSet(idx, f, v) { packEd.list[idx][f] = f === 'qty' ? Math.max(0, Number(v) || 0) : v; renderPackEditor(); }
+function packSet(idx, f, v) { packEd.list[idx][f] = f === 'qty' ? Math.max(0, num(v) || 0) : v; renderPackEditor(); }
 function savePack() {
   data.packaging[packEd.key] = packEd.list;
   saveData(); closeModal('modal-pack'); showToast('Kemasan disimpan'); renderAll();
@@ -1375,7 +1470,7 @@ function setupEditor() {
   $('rec-menu-extra').classList.toggle('hidden', isBase);
   $('rec-delete-btn').classList.toggle('hidden', !(isBase && ed.id));
   if (isBase) {
-    $('rec-name').value = ed.name; $('rec-yield-qty').value = ed.yieldQty || ''; $('rec-yield-unit').value = ed.yieldUnit;
+    $('rec-name').value = ed.name; $('rec-yield-qty').value = dec(ed.yieldQty || ''); $('rec-yield-unit').value = ed.yieldUnit;
   } else {
     const useDef = ed.overrideOpCost === null || ed.overrideOpCost === undefined;
     $('rec-opcost-default').checked = useDef;
@@ -1385,7 +1480,7 @@ function setupEditor() {
     $('sim-price').value = ed.price || '';
     $('sim-online-price').value = ed.onlinePrice || '';
     $('sim-mult').value = 0;
-    $('sug-mode').value = 'margin'; $('sug-target').value = data.settings.defaultMargin;
+    $('sug-mode').value = 'margin'; $('sug-target').value = dec(data.settings.defaultMargin);
   }
   refreshEditor(true);
   openModal('modal-recipe');
@@ -1413,9 +1508,9 @@ function addComponent() {
   refreshEditor(true);
 }
 function removeComponent(idx) { edList().splice(idx, 1); refreshEditor(true); }
-function updateComponent(idx, field, val) { edList()[idx][field] = Math.max(0, Number(val) || 0); refreshEditor(); }
+function updateComponent(idx, field, val) { edList()[idx][field] = Math.max(0, num(val) || 0); refreshEditor(); }
 
-function simMult() { return ed.kind === 'menu' ? 1 + (Number($('sim-mult').value) || 0) / 100 : 1; }
+function simMult() { return ed.kind === 'menu' ? 1 + (num($('sim-mult').value) || 0) / 100 : 1; }
 function renderEditorRows() {
   const mult = simMult();
   const list = edList();
@@ -1435,9 +1530,9 @@ function renderEditorRows() {
       </div>
       <div class="flex gap-2">
         <div class="flex-1"><label class="text-[10px] text-gray-500">Jumlah (${esc(info.unit)})</label>
-          <input type="number" inputmode="decimal" step="any" value="${c.qty || ''}" placeholder="0" onchange="updateComponent(${idx},'qty',this.value)" class="inp !p-1"></div>
+          <input type="text" inputmode="decimal" autocomplete="off" step="any" value="${dec(c.qty || '')}" placeholder="0" onchange="updateComponent(${idx},'qty',this.value)" class="inp !p-1"></div>
         <div class="w-20"><label class="text-[10px] text-gray-500">Susut %</label>
-          <input type="number" inputmode="decimal" value="${c.waste || ''}" placeholder="0" onchange="updateComponent(${idx},'waste',this.value)" class="inp !p-1"></div>
+          <input type="text" inputmode="decimal" autocomplete="off" value="${dec(c.waste || '')}" placeholder="0" onchange="updateComponent(${idx},'waste',this.value)" class="inp !p-1"></div>
       </div>
     </div>`;
   }).join('');
@@ -1470,9 +1565,9 @@ function suggestPrice(hpp, mode, target) {
 }
 function calcSim() {
   const def = $('rec-opcost-default').checked;
-  ed.overrideOpCost = def ? null : (Number($('rec-opcost-val').value) || 0);
-  ed.price = Number($('sim-price').value) || 0;
-  ed.onlinePrice = Number($('sim-online-price').value) || 0;
+  ed.overrideOpCost = def ? null : (num($('rec-opcost-val').value, true) || 0);
+  ed.price = num($('sim-price').value, true) || 0;
+  ed.onlinePrice = num($('sim-online-price').value, true) || 0;
   const bd = menuBreakdown(ed, simMult());
   const price = ed.price, profit = price - bd.total;
   $('sim-hpp').innerText = formatIDR(bd.total);
@@ -1481,7 +1576,7 @@ function calcSim() {
   $('sim-margin').innerText = (price > 0 ? profit / price * 100 : 0).toFixed(1) + '%';
   $('sim-fc').innerText = (price > 0 ? bd.total / price * 100 : 0).toFixed(1) + '%';
   $('sim-warn').innerText = recipeComplete(ed) ? '' : 'HPP belum lengkap: masih ada jumlah / harga bahan yang kosong.';
-  const sp = suggestPrice(bd.total, $('sug-mode').value, Number($('sug-target').value));
+  const sp = suggestPrice(bd.total, $('sug-mode').value, num($('sug-target').value));
   $('sug-price').innerText = sp > 0 ? formatIDR(sp) : '-';
   calcSim._sp = sp;
   renderChannelTable(bd.total);
@@ -1509,7 +1604,7 @@ function saveRecipe() {
   if (ed.kind === 'base') {
     ed.name = $('rec-name').value.trim();
     if (!ed.name) return showToast('Nama resep wajib diisi', 'error');
-    ed.yieldQty = Number($('rec-yield-qty').value) || 0;
+    ed.yieldQty = num($('rec-yield-qty').value) || 0;
     ed.yieldUnit = $('rec-yield-unit').value.trim() || 'gram';
     const obj = { id: ed.id || genId('br'), name: ed.name, yieldQty: ed.yieldQty, yieldUnit: ed.yieldUnit, ingredients: ed.ingredients };
     if (ed.id) data.baseRecipes[data.baseRecipes.findIndex(x => x.id === ed.id)] = obj; else data.baseRecipes.push(obj);
@@ -1582,8 +1677,8 @@ function openRecipeFromMenu() { const id = $('menu-id').value; closeModal('modal
 function saveMenu(e) {
   e.preventDefault();
   const id = $('menu-id').value;
-  const price = Number($('menu-price').value), hpp = Number($('menu-hpp').value) || 0;
-  const onlinePrice = Number($('menu-online-price').value) || 0;
+  const price = num($('menu-price').value, true), hpp = num($('menu-hpp').value, true) || 0;
+  const onlinePrice = num($('menu-online-price').value, true) || 0;
   if (!(price >= 0) || hpp < 0 || onlinePrice < 0) return showToast('Nominal tidak boleh negatif', 'error');
   const hasRecipe = $('menu-hasRecipe').checked;
   const base = { name: $('menu-name').value.trim(), category: $('menu-category').value, price, onlinePrice, usePackaging: $('menu-usepack').checked, active: $('menu-active').checked, hasRecipe };
@@ -1632,7 +1727,8 @@ function generateReport() {
   const grossProfit = net - comm - cogs - pack;
   const opex = sum(exps.filter(isDeducted), x => x.amount);
   const included = sum(exps.filter(x => !isDeducted(x)), x => x.amount);
-  const netProfit = grossProfit - opex;
+  const opVal = sum((data.opnames || []).filter(o => o.at.slice(0, 10) >= s && o.at.slice(0, 10) <= e), o => sum(o.items, it => it.diffValue));
+  const netProfit = grossProfit - opex + opVal;
 
   const row = (l, v, cls = '', bold = false) => `<div class="flex justify-between text-sm mb-1 ${cls} ${bold ? 'font-semibold' : ''}"><span>${l}</span><span>${v}</span></div>`;
   $('report-content').innerHTML = `
@@ -1646,6 +1742,7 @@ function generateReport() {
     <div class="border-t border-dashed my-2"></div>
     ${row('Laba Kotor', formatIDR(grossProfit), 'text-brand-600', true)}
     ${row('Pengeluaran Operasional', '- ' + formatIDR(opex), 'text-red-500')}
+    ${opVal !== 0 ? row('Selisih Stok (hasil opname)', (opVal < 0 ? '- ' : '+ ') + formatIDR(Math.abs(opVal)), opVal < 0 ? 'text-red-500' : 'text-green-600') : ''}
     <div class="flex justify-between text-base font-bold mt-3 border-t pt-2 bg-gray-50 p-2 rounded"><span>Laba Bersih</span><span class="${netProfit < 0 ? 'text-red-600' : 'text-green-600'}">${formatIDR(netProfit)}</span></div>
     ${included > 0 ? `<p class="text-[10px] text-gray-400 mt-2">Pengeluaran ${formatIDR(included)} (${esc(data.settings.excludeCats.join(', '))}) tidak dikurangkan karena sudah masuk HPP. Ubah di Pengaturan.</p>` : ''}
     <p class="text-[10px] text-gray-400 mt-1">${sales.length} transaksi · ${sum(sales, x => sum(x.items, i => i.qty))} item terjual</p>`;
@@ -1687,7 +1784,7 @@ function generateReport() {
 
   // Grafik
   renderReportChart(s, e, sales, exps);
-  lastReport = { s, e, sales, exps, gross, disc, net, cogs, grossProfit, opex, included, netProfit, menuRows, byPay, byCat, byCh, comm, pack };
+  lastReport = { s, e, sales, exps, gross, disc, net, cogs, grossProfit, opex, included, netProfit, menuRows, byPay, byCat, byCh, comm, pack, opVal };
 }
 
 function renderReportChart(s, e, sales, exps) {
@@ -1724,7 +1821,7 @@ function exportCSV() {
   L.push(line(data.settings.storeName + ' - Laporan', fmtDate(r.s) + ' s/d ' + fmtDate(r.e)));
   L.push('');
   L.push(line('RINGKASAN LABA RUGI'));
-  [['Penjualan (sebelum diskon)', r.gross], ['Diskon', r.disc], ['Penjualan bersih', r.net], ['Potongan platform online', r.comm], ['HPP', r.cogs], ['Biaya kemasan', r.pack], ['Laba kotor', r.grossProfit], ['Pengeluaran operasional', r.opex], ['Laba bersih', r.netProfit]]
+  [['Penjualan (sebelum diskon)', r.gross], ['Diskon', r.disc], ['Penjualan bersih', r.net], ['Potongan platform online', r.comm], ['HPP', r.cogs], ['Biaya kemasan', r.pack], ['Laba kotor', r.grossProfit], ['Pengeluaran operasional', r.opex], ['Selisih stok (opname)', r.opVal], ['Laba bersih', r.netProfit]]
     .forEach(([k, v]) => L.push(line(k, Math.round(v))));
   L.push(''); L.push(line('RINCIAN PER MENU')); L.push(line('Menu', 'Qty', 'Omzet', 'HPP', 'Laba'));
   r.menuRows.forEach(m => L.push(line(m.n, m.qty, Math.round(m.rev), Math.round(m.cogs), Math.round(m.profit))));
@@ -1755,20 +1852,21 @@ function calcKas() {
   const d = $('kas-date').value;
   const cashSales = sum(salesOn(d).filter(s => s.paymentMethod === 'Tunai'), s => s.total);
   const cashExp = sum(data.expenses.filter(e => e.date === d && (e.method || 'Tunai') === 'Tunai'), e => e.amount);
-  const expected = (Number($('kas-open').value) || 0) + cashSales - cashExp;
+  const expected = (num($('kas-open').value, true) || 0) + cashSales - cashExp;
   $('kas-sales').innerText = formatIDR(cashSales); $('kas-exp').innerText = '- ' + formatIDR(cashExp); $('kas-expected').innerText = formatIDR(expected);
   const box = $('kas-diff'), act = $('kas-actual').value;
   if (act === '') { box.className = 'rounded-xl p-3 text-sm font-semibold text-center bg-gray-50 text-gray-500'; box.innerText = 'Isi uang fisik untuk melihat selisih'; return; }
-  const diff = Number(act) - expected;
+  const diff = num(act, true) - expected;
   if (diff === 0) { box.className = 'rounded-xl p-3 text-sm font-semibold text-center bg-green-50 text-green-700'; box.innerText = 'Pas, tidak ada selisih'; }
   else if (diff > 0) { box.className = 'rounded-xl p-3 text-sm font-semibold text-center bg-blue-50 text-blue-700'; box.innerText = 'Lebih ' + formatIDR(diff); }
   else { box.className = 'rounded-xl p-3 text-sm font-semibold text-center bg-red-50 text-red-700'; box.innerText = 'Kurang ' + formatIDR(Math.abs(diff)); }
 }
 function saveKas() {
   const d = $('kas-date').value; if (!d) return showToast('Tanggal wajib diisi', 'error');
-  const open = Number($('kas-open').value) || 0, actRaw = $('kas-actual').value;
-  if (open < 0 || (actRaw !== '' && Number(actRaw) < 0)) return showToast('Nominal tidak boleh negatif', 'error');
-  data.cash[d] = { open, actual: actRaw === '' ? null : Number(actRaw) };
+  const open = num($('kas-open').value, true) || 0, actRaw = $('kas-actual').value;
+  const actual = actRaw.trim() === '' ? null : num(actRaw, true);
+  if (!(open >= 0) || (actual !== null && !(actual >= 0))) return showToast('Nominal tidak valid', 'error');
+  data.cash[d] = { open, actual };
   saveData(); showToast('Tutup kasir tersimpan'); renderKasHistory();
 }
 function renderKasHistory() {
@@ -1787,17 +1885,17 @@ function renderKasHistory() {
 function fillSettings() {
   const s = data.settings;
   $('set-name').value = s.storeName; $('set-address').value = s.address || ''; $('set-phone').value = s.phone || '';
-  $('set-margin').value = s.defaultMargin; $('set-opcost').value = s.defaultOpCost; $('set-pin').value = s.pin || '';
-  ONLINE.forEach(p => $('set-comm-' + p).value = (s.commission || {})[p] || '');
+  $('set-margin').value = dec(s.defaultMargin); $('set-opcost').value = s.defaultOpCost; $('set-pin').value = s.pin || '';
+  ONLINE.forEach(p => $('set-comm-' + p).value = dec((s.commission || {})[p] || ''));
   $('set-exclude').innerHTML = EXP_CATS.map(c => `<label class="flex items-center gap-1.5"><input type="checkbox" class="w-4 h-4 set-excl" value="${c}" ${s.excludeCats.includes(c) ? 'checked' : ''}> ${c}</label>`).join('');
 }
 function saveSettings() {
-  const margin = Number($('set-margin').value), op = Number($('set-opcost').value), pin = $('set-pin').value.trim();
+  const margin = num($('set-margin').value), op = num($('set-opcost').value, true), pin = $('set-pin').value.trim();
   if (!(margin >= 0 && margin < 100)) return showToast('Target margin harus 0-99%', 'error');
   if (!(op >= 0)) return showToast('Biaya operasional tidak boleh negatif', 'error');
   if (pin && !/^\d{4,6}$/.test(pin)) return showToast('PIN harus 4-6 angka', 'error');
   const commission = {};
-  for (const p of ONLINE) { const v = Number($('set-comm-' + p).value) || 0; if (v < 0 || v > 100) return showToast('Potongan ' + p + ' harus 0-100%', 'error'); commission[p] = v; }
+  for (const p of ONLINE) { const v = num($('set-comm-' + p).value) || 0; if (v < 0 || v > 100) return showToast('Potongan ' + p + ' harus 0-100%', 'error'); commission[p] = v; }
   Object.assign(data.settings, {
     storeName: $('set-name').value.trim() || 'Habite Burger', address: $('set-address').value.trim(), phone: $('set-phone').value.trim(),
     defaultMargin: margin, defaultOpCost: op, pin, commission,
@@ -1851,7 +1949,7 @@ function checkPin() {
    Perubahan dari perangkat lain masuk lewat listener realtime.
    ===================================================================== */
 const SHOP_PATH = 'shops/habite';
-const SYNC_COLLS = ['ingredients', 'baseRecipes', 'menus', 'sales', 'expenses', 'priceHistory'];
+const SYNC_COLLS = ['ingredients', 'baseRecipes', 'menus', 'sales', 'expenses', 'priceHistory', 'stockIns', 'opnames'];
 const ORDERED = ['ingredients', 'baseRecipes', 'menus'];
 let auth = null, db = null, cloudReady = false, cloudUnsubs = [], lastSynced = {}, renderTimer = null, pendingCommits = 0;
 
@@ -2016,6 +2114,225 @@ function cloudAttach() {
     }
     done('config'); cloudRender();
   }, fail));
+}
+
+/* =====================================================================
+   STOK & STOCK OPNAME
+   Stok sistem = hitungan opname terakhir + stok masuk - pemakaian dari penjualan
+   (pemakaian dihitung dari resep menu, resep dasar, dan kemasan).
+   ===================================================================== */
+const r4 = (x) => Math.round(x * 10000) / 10000;
+const isLow = (i, s) => i.minStock > 0 && s && s.system !== null && s.system <= i.minStock;
+
+// Pemakaian bahan untuk 1 porsi menu (satuan resep)
+function menuUsage(m) {
+  const out = {}, add = (id, q) => { if (q > 0) out[id] = (out[id] || 0) + q; };
+  (m.recipe || []).forEach(c => {
+    const q = (Number(c.qty) || 0) * (1 + (Number(c.waste) || 0) / 100);
+    if (c.type === 'baseRecipe') {
+      const b = findBase(c.id);
+      if (b && b.yieldQty > 0) (b.ingredients || []).forEach(bc => add(bc.id, (Number(bc.qty) || 0) * (1 + (Number(bc.waste) || 0) / 100) * q / b.yieldQty));
+    } else add(c.id, q);
+  });
+  return out;
+}
+// Pemakaian bahan untuk 1 transaksi (menu + kemasan)
+function saleUsage(s, cache) {
+  const out = {}, add = (id, q) => { if (q > 0) out[id] = (out[id] || 0) + q; };
+  let packItems = 0;
+  s.items.forEach(it => {
+    const m = findMenu(it.menuId); if (!m) return;
+    const u = cache[m.id] || (cache[m.id] = menuUsage(m));
+    Object.keys(u).forEach(id => add(id, u[id] * it.qty));
+    if (usesPack(m)) packItems += it.qty;
+  });
+  if (packItems > 0) ((data.packaging || {})[orderKey(channelOf(s))] || []).forEach(c => add(c.id, (Number(c.qty) || 0) * (c.scope === 'order' ? 1 : packItems)));
+  return out;
+}
+// Hitungan opname terakhir untuk satu bahan
+function baselineOf(ingId) {
+  let best = null;
+  (data.opnames || []).forEach(o => {
+    const it = (o.items || []).find(x => x.ingId === ingId && x.actual !== null && x.actual !== undefined);
+    if (it && (!best || o.at > best.at)) best = { at: o.at, qty: Number(it.actual) || 0 };
+  });
+  return best;
+}
+function computeStock() {
+  const cache = {};
+  const usage = data.sales.map(s => ({ at: s.date, u: saleUsage(s, cache) }));
+  const res = {};
+  data.ingredients.forEach(i => {
+    const base = baselineOf(i.id), t0 = base ? base.at : '';
+    const used = sum(usage.filter(x => x.at > t0), x => x.u[i.id] || 0);
+    const inn = sum((data.stockIns || []).filter(x => x.ingId === i.id && x.at > t0), x => x.qty);
+    res[i.id] = { base, used, inn, system: base ? base.qty + inn - used : null };
+  });
+  return res;
+}
+function diffLabel(sys, actual, unit, uc) {
+  if (sys === null) return '<span class="text-gray-500">Hitungan pertama, jadi acuan stok</span>';
+  const d = actual - sys, v = Math.round(d * uc);
+  if (Math.abs(d) < 0.0001) return '<span class="text-green-600">Pas</span>';
+  return `<span class="${d < 0 ? 'text-red-600' : 'text-blue-600'}">${d > 0 ? 'Lebih ' : 'Kurang '}${fmtQty(Math.abs(d))} ${esc(unit)} (${v < 0 ? '-' : '+'}${formatIDR(Math.abs(v))})</span>`;
+}
+
+/* ---------- Tampilan tab Stok ---------- */
+let stokTab = 'stok';
+function setStokTab(t) { stokTab = t; renderStok(); }
+function renderStok() {
+  $('stok-tabs').innerHTML = [['stok', 'Stok Bahan'], ['opname', 'Riwayat Opname'], ['in', 'Stok Masuk']].map(([k, l]) =>
+    `<button onclick="setStokTab('${k}')" class="chip ${stokTab === k ? 'on' : ''}">${l}</button>`).join('');
+  ['stok', 'opname', 'in'].forEach(k => $('stok-content-' + k).classList.toggle('hidden', stokTab !== k));
+  if (stokTab === 'stok') renderStokList(); else if (stokTab === 'opname') renderOpnameHistory(); else renderStockInHistory();
+}
+function renderStokList() {
+  const q = $('search-stok').value.toLowerCase().trim();
+  const st = computeStock();
+  const never = data.ingredients.filter(i => !st[i.id].base).length;
+  const low = data.ingredients.filter(i => isLow(i, st[i.id])).length;
+  $('stok-summary').innerHTML = `${data.ingredients.length} bahan · <b>${never}</b> belum pernah dihitung · <b class="${low ? 'text-red-600' : ''}">${low}</b> hampir habis`;
+  const list = data.ingredients.filter(i => i.name.toLowerCase().includes(q));
+  $('stok-list').innerHTML = list.length ? list.map(i => {
+    const s = st[i.id], lowI = isLow(i, s), neg = s.system !== null && s.system < 0;
+    return `<div class="card p-3 cursor-pointer" onclick="openStockInModal('${i.id}')">
+      <div class="flex justify-between items-start">
+        <div><h4 class="font-bold text-sm">${esc(i.name)} ${lowI ? '<span class="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded">hampir habis</span>' : ''}</h4>
+          <p class="text-[11px] text-gray-500">${s.base ? 'Opname terakhir ' + fmtDateTime(s.base.at) : 'Belum pernah dihitung'}</p></div>
+        <div class="text-right"><p class="font-bold text-sm ${neg || lowI ? 'text-red-600' : ''}">${s.system !== null ? fmtQty(s.system) + ' ' + esc(i.baseUnit) : '-'}</p><p class="text-[10px] text-gray-400">stok sistem</p></div>
+      </div>
+      ${s.base ? `<p class="text-[10px] text-gray-400 mt-1">Hitungan ${fmtQty(s.base.qty)} + masuk ${fmtQty(s.inn)} - pakai ${fmtQty(s.used)}</p>` : ''}
+    </div>`;
+  }).join('') : emptyState('ph-package', 'Bahan tidak ditemukan');
+}
+function renderOpnameHistory() {
+  const list = (data.opnames || []).slice().sort((a, b) => b.at.localeCompare(a.at));
+  $('opname-list').innerHTML = list.length ? list.map(o => {
+    const tot = sum(o.items, x => x.diffValue);
+    return `<div class="card p-3 cursor-pointer" onclick="openOpnameDetail('${o.id}')"><div class="flex justify-between">
+      <div><h4 class="font-bold text-sm">${fmtDateTime(o.at)}</h4><p class="text-[11px] text-gray-500">${o.items.length} bahan${o.note ? ' · ' + esc(o.note) : ''}</p></div>
+      <div class="text-right"><p class="font-bold text-sm ${tot < 0 ? 'text-red-600' : tot > 0 ? 'text-green-600' : 'text-gray-500'}">${tot === 0 ? 'Pas' : (tot < 0 ? '- ' : '+ ') + formatIDR(Math.abs(tot))}</p><p class="text-[10px] text-gray-400">selisih nilai</p></div>
+    </div></div>`;
+  }).join('') : emptyState('ph-clipboard-text', 'Belum ada stock opname', 'Tekan "Stock Opname" untuk mulai menghitung stok fisik');
+}
+function renderStockInHistory() {
+  const list = (data.stockIns || []).slice().sort((a, b) => b.at.localeCompare(a.at)).slice(0, 100);
+  $('stockin-list').innerHTML = list.length ? list.map(x => `
+    <div class="card p-3 flex justify-between items-center">
+      <div><h4 class="font-bold text-sm">${esc(x.name)}</h4><p class="text-[11px] text-gray-500">${fmtDateTime(x.at)}${x.note ? ' · ' + esc(x.note) : ''}</p></div>
+      <div class="text-right"><p class="font-bold text-sm text-green-600">+ ${fmtQty(x.qty)} ${esc(x.unit)}</p><button onclick="deleteStockIn('${x.id}')" class="text-[11px] text-red-500">Hapus</button></div>
+    </div>`).join('') : emptyState('ph-package', 'Belum ada stok masuk', 'Tekan "Stok Masuk" saat membeli bahan');
+}
+
+/* ---------- Stok masuk ---------- */
+function openStockInModal(ingId) {
+  $('si-ing').innerHTML = data.ingredients.map(i => `<option value="${i.id}">${esc(i.name)}</option>`).join('');
+  if (ingId) $('si-ing').value = ingId;
+  $('si-qty').value = ''; $('si-note').value = ''; $('si-date').value = toLocalDT();
+  siUnits(); openModal('modal-stockin');
+}
+function siUnits() {
+  const i = findIngr($('si-ing').value); if (!i) return;
+  let opts = `<option value="base">${esc(i.baseUnit)}</option>`;
+  if (i.qtyPerPack !== 1) opts += `<option value="pack">${esc(i.purchaseUnit)} (isi ${fmtQty(i.qtyPerPack)} ${esc(i.baseUnit)})</option>`;
+  $('si-unit').innerHTML = opts; siPreview();
+}
+function siQtyBase() {
+  const i = findIngr($('si-ing').value); if (!i) return NaN;
+  const q = num($('si-qty').value);
+  return $('si-unit').value === 'pack' ? q * i.qtyPerPack : q;
+}
+function siPreview() {
+  const i = findIngr($('si-ing').value), q = siQtyBase();
+  $('si-preview').innerText = i && q > 0 ? `Stok bertambah ${fmtQty(q)} ${i.baseUnit}` : '';
+}
+function saveStockIn() {
+  const i = findIngr($('si-ing').value), q = siQtyBase();
+  if (!i) return showToast('Pilih bahan dulu', 'error');
+  if (!(q > 0)) return showToast('Jumlah harus lebih dari 0', 'error');
+  if (!$('si-date').value) return showToast('Tanggal wajib diisi', 'error');
+  data.stockIns.push({ id: genId('si'), at: $('si-date').value, ingId: i.id, name: i.name, qty: r4(q), unit: i.baseUnit, note: $('si-note').value.trim() });
+  saveData(); closeModal('modal-stockin'); showToast('Stok masuk dicatat'); renderAll();
+}
+function deleteStockIn(id) {
+  const x = data.stockIns.find(y => y.id === id); if (!x) return;
+  if (!confirm(`Hapus stok masuk ${x.name} (${fmtQty(x.qty)} ${x.unit})?`)) return;
+  data.stockIns = data.stockIns.filter(y => y.id !== id); saveData(); showToast('Stok masuk dihapus'); renderAll();
+}
+
+/* ---------- Stock opname ---------- */
+let opInputs = {}, opStock = {}, opDefaultDate = '';
+function openOpnameModal() {
+  opInputs = {}; opStock = computeStock();
+  opDefaultDate = toLocalDT(); $('op-date').value = opDefaultDate; $('op-note').value = ''; $('op-search').value = '';
+  renderOpnameRows(); openModal('modal-opname');
+}
+function opDiffHtml(i) {
+  const raw = (opInputs[i.id] || '').trim(); if (raw === '') return '';
+  const a = num(raw); if (!(a >= 0)) return '<span class="text-red-600">Angka tidak valid</span>';
+  return diffLabel(opStock[i.id].system, a, i.baseUnit, ingrUnitCost(i.id));
+}
+function renderOpnameRows() {
+  const q = $('op-search').value.toLowerCase().trim();
+  $('op-rows').innerHTML = data.ingredients.filter(i => i.name.toLowerCase().includes(q)).map(i => {
+    const s = opStock[i.id] ? opStock[i.id].system : null;
+    return `<div class="bg-gray-50 border rounded-lg p-2">
+      <div class="flex justify-between text-sm"><b>${esc(i.name)}</b><span class="text-[11px] text-gray-500">Sistem: ${s !== null ? fmtQty(s) + ' ' + esc(i.baseUnit) : '-'}</span></div>
+      <input type="text" inputmode="decimal" autocomplete="off" value="${esc(opInputs[i.id] || '')}" placeholder="Stok fisik (${esc(i.baseUnit)})" oninput="opInput('${i.id}', this.value)" class="inp !p-1.5 mt-1">
+      <p id="op-diff-${i.id}" class="text-[11px] mt-1 min-h-[1rem]">${opDiffHtml(i)}</p>
+    </div>`;
+  }).join('') || emptyState('ph-package', 'Bahan tidak ditemukan');
+  opSummary();
+}
+function opInput(id, v) {
+  opInputs[id] = v;
+  const i = findIngr(id), el = $('op-diff-' + id);
+  if (el && i) el.innerHTML = opDiffHtml(i);
+  opSummary();
+}
+function opSummary() {
+  let n = 0, tot = 0;
+  data.ingredients.forEach(i => {
+    const raw = (opInputs[i.id] || '').trim(); if (raw === '') return;
+    const a = num(raw); if (!(a >= 0)) return;
+    n++; const s = opStock[i.id].system; if (s !== null) tot += Math.round((a - s) * ingrUnitCost(i.id));
+  });
+  $('op-count').innerText = n + ' bahan dihitung';
+  $('op-total').innerHTML = n ? `<span class="${tot < 0 ? 'text-red-600' : tot > 0 ? 'text-green-600' : 'text-gray-500'}">Selisih ${tot === 0 ? 'Rp 0' : (tot < 0 ? '- ' : '+ ') + formatIDR(Math.abs(tot))}</span>` : '';
+}
+function saveOpname() {
+  const items = [];
+  for (const i of data.ingredients) {
+    const raw = (opInputs[i.id] || '').trim(); if (raw === '') continue;
+    const actual = num(raw);
+    if (!(actual >= 0)) return showToast(`Stok ${i.name} tidak valid`, 'error');
+    const sys = opStock[i.id] ? opStock[i.id].system : null, uc = ingrUnitCost(i.id);
+    items.push({ ingId: i.id, name: i.name, unit: i.baseUnit, system: sys === null ? null : r4(sys), actual: r4(actual),
+      diff: sys === null ? null : r4(actual - sys), unitCost: uc, diffValue: sys === null ? 0 : Math.round((actual - sys) * uc) });
+  }
+  if (!items.length) return showToast('Isi stok fisik minimal satu bahan', 'error');
+  let at = $('op-date').value;
+  if (!at) return showToast('Tanggal wajib diisi', 'error');
+  if (at === opDefaultDate) at = toLocalDT(); // tanggal tidak diubah: pakai waktu simpan
+  data.opnames.push({ id: genId('op'), at, note: $('op-note').value.trim(), items });
+  saveData(); closeModal('modal-opname'); showToast(`Opname tersimpan (${items.length} bahan)`); renderAll();
+}
+let opdId = null;
+function openOpnameDetail(id) {
+  const o = data.opnames.find(x => x.id === id); if (!o) return;
+  opdId = id;
+  const tot = sum(o.items, x => x.diffValue);
+  $('opd-body').innerHTML = `<p class="text-xs text-gray-500">${fmtDateTime(o.at)}${o.note ? ' · ' + esc(o.note) : ''}</p>` +
+    o.items.map(x => `<div class="border-b pb-2"><div class="flex justify-between"><b>${esc(x.name)}</b><span class="text-xs">Fisik ${fmtQty(x.actual)} ${esc(x.unit)}</span></div>
+      <p class="text-[11px] text-gray-500">Sistem: ${x.system === null ? '-' : fmtQty(x.system) + ' ' + esc(x.unit)}</p>
+      <p class="text-[11px]">${x.diff === null ? '<span class="text-gray-500">Hitungan pertama</span>' : Math.abs(x.diff) < 0.0001 ? '<span class="text-green-600">Pas</span>' : `<span class="${x.diff < 0 ? 'text-red-600' : 'text-blue-600'}">${x.diff > 0 ? 'Lebih ' : 'Kurang '}${fmtQty(Math.abs(x.diff))} ${esc(x.unit)} (${x.diffValue < 0 ? '-' : '+'}${formatIDR(Math.abs(x.diffValue))})</span>`}</p></div>`).join('') +
+    `<div class="flex justify-between font-bold pt-1"><span>Total selisih nilai</span><span class="${tot < 0 ? 'text-red-600' : tot > 0 ? 'text-green-600' : ''}">${tot === 0 ? 'Rp 0' : (tot < 0 ? '- ' : '+ ') + formatIDR(Math.abs(tot))}</span></div>`;
+  openModal('modal-opdetail');
+}
+function deleteOpname() {
+  const o = data.opnames.find(x => x.id === opdId); if (!o) return;
+  if (!confirm('Hapus opname ' + fmtDateTime(o.at) + '? Stok sistem akan kembali dihitung dari opname sebelumnya.')) return;
+  data.opnames = data.opnames.filter(x => x.id !== opdId); saveData(); closeModal('modal-opdetail'); showToast('Opname dihapus'); renderAll();
 }
 
 /* ---------- Mulai ---------- */
