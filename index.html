@@ -326,6 +326,14 @@
         <button onclick="cloudLogout()" class="w-full border border-gray-300 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2"><i class="ph ph-sign-out" aria-hidden="true"></i> Keluar</button>
       </div>
 
+      <div id="set-team-card" class="hidden card p-4 mb-4 space-y-3">
+        <h3 class="font-semibold text-sm border-b pb-2">Akses Tim</h3>
+        <p class="text-[11px] text-gray-600">Owner melihat semua data termasuk laba. Crew hanya input penjualan, pengeluaran, dan stok. Satu email per baris. Akunnya tetap harus dibuat dulu di Firebase Authentication.</p>
+        <div><label class="lbl" for="team-owners">Owner tambahan</label><textarea id="team-owners" class="inp" rows="2" placeholder="email owner lain"></textarea></div>
+        <div><label class="lbl" for="team-crew">Crew</label><textarea id="team-crew" class="inp" rows="3" placeholder="email crew"></textarea></div>
+        <button onclick="saveTeam()" class="w-full bg-brand-700 text-white min-h-[44px] rounded-lg text-sm font-semibold">Simpan Akses Tim</button>
+      </div>
+
       <button onclick="saveSettings()" class="w-full bg-brand-700 text-white py-3 rounded-xl font-semibold active:scale-95 transition mb-4">Simpan Pengaturan</button>
 
       <div class="card p-4 mb-6 space-y-3">
@@ -756,13 +764,16 @@ function showToast(msg, type = 'success') {
 }
 /* Modal: fokus masuk/kembali, Esc menutup, Tab terkurung di dalam modal */
 /* ---------- Peran: owner (semua) / crew (penjualan, pengeluaran, stok) ---------- */
-const OWNER_EMAILS = ['gandhiawan13@gmail.com', 'gandhiawwan@gmail.com'];   // semua email lain yang login = crew
+const OWNER_EMAILS = ['gandhiawan13@gmail.com', 'gandhiawwan@gmail.com'];   // owner utama (selalu owner). Owner & crew lain diatur di Pengaturan > Akses Tim
+let TEAM = { owners: [], crew: [] };
+try { TEAM = JSON.parse(localStorage.getItem('habite_team')) || TEAM; } catch (e) {}
+const normMail = (x) => String(x || '').trim().toLowerCase();
 const OWNER_TABS = ['hpp', 'menu', 'laporan', 'pengaturan'];
 const CREW_CREATE = ['sales', 'expenses', 'stockIns', 'opnames'];   // koleksi yang boleh ditambah crew
 let ROLE = 'owner';
 const isOwner = () => ROLE === 'owner';
 function applyRole(email) {
-  ROLE = OWNER_EMAILS.map(x => x.toLowerCase()).includes(String(email || '').toLowerCase()) ? 'owner' : 'crew';
+  ROLE = [...OWNER_EMAILS, ...(TEAM.owners || [])].map(normMail).includes(normMail(email)) ? 'owner' : 'crew';
   document.body.dataset.role = ROLE;
   if (!isOwner() && OWNER_TABS.includes(currentTab)) switchTab('dashboard');
 }
@@ -2133,7 +2144,7 @@ function authMsg(code) {
 
 function cloudInit() {
   $('cloud-loading').classList.remove('hidden');
-  $('set-cloud-card').classList.remove('hidden');
+  $('set-cloud-card').classList.remove('hidden'); $('set-team-card').classList.remove('hidden');
   $('local-note').innerText = 'Data tersimpan di cloud dan otomatis sinkron antar perangkat. Backup tetap disarankan.';
   if (typeof firebase === 'undefined') {
     $('cloud-loading').classList.add('hidden'); $('login-screen').classList.remove('hidden');
@@ -2145,9 +2156,32 @@ function cloudInit() {
   db.enablePersistence({ synchronizeTabs: true }).catch(() => {}); // cache offline
   window.addEventListener('online', refreshStatus); window.addEventListener('offline', refreshStatus);
   auth.onAuthStateChanged(u => {
-    if (u) { applyRole(u.email); $('set-cloud-email').innerText = u.email + (isOwner() ? ' (Owner)' : ' (Crew)'); $('login-screen').classList.add('hidden'); $('cloud-loading').classList.remove('hidden'); cloudStart(); }
+    if (u) { loadTeam().then(() => { applyRole(u.email); renderTeam(); $('set-cloud-email').innerText = u.email + (isOwner() ? ' (Owner)' : ' (Crew)'); }); applyRole(u.email); $('set-cloud-email').innerText = u.email + (isOwner() ? ' (Owner)' : ' (Crew)'); $('login-screen').classList.add('hidden'); $('cloud-loading').classList.remove('hidden'); cloudStart(); }
     else { cloudStop(); $('cloud-loading').classList.add('hidden'); $('login-screen').classList.remove('hidden'); }
   });
+}
+async function loadTeam() {
+  try {
+    const r = await db.doc('shops/habite/config/roles').get();
+    if (r.exists) { TEAM = { owners: r.data().owners || [], crew: r.data().crew || [] }; try { localStorage.setItem('habite_team', JSON.stringify(TEAM)); } catch (e) {} }
+  } catch (e) { /* offline / belum ada: pakai cadangan lokal */ }
+}
+function renderTeam() {
+  if (!$('team-owners')) return;
+  $('team-owners').value = (TEAM.owners || []).join('\n'); $('team-crew').value = (TEAM.crew || []).join('\n');
+}
+async function saveTeam() {
+  if (!isOwner()) return;
+  const parse = (id) => [...new Set($(id).value.split(/[\n,;\s]+/).map(normMail).filter(Boolean))];
+  const owners = parse('team-owners').filter(x => !OWNER_EMAILS.map(normMail).includes(x)), crew = parse('team-crew');
+  const bad = [...owners, ...crew].find(x => !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x));
+  if (bad) return showToast('Email tidak valid: ' + bad, 'error');
+  if (crew.some(x => owners.includes(x) || OWNER_EMAILS.map(normMail).includes(x))) return showToast('Satu email tidak boleh jadi owner dan crew sekaligus', 'error');
+  try {
+    await db.doc('shops/habite/config/roles').set({ owners, crew });
+    TEAM = { owners, crew }; try { localStorage.setItem('habite_team', JSON.stringify(TEAM)); } catch (e) {}
+    showToast('Akses tim disimpan');
+  } catch (e) { showToast('Gagal menyimpan. Pastikan aturan Firestore sudah diperbarui.', 'error'); }
 }
 async function doLogin() {
   const email = $('login-email').value.trim(), pw = $('login-pass').value;

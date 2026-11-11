@@ -4,13 +4,19 @@ service cloud.firestore {
     function signedIn() { return request.auth != null && request.auth.token.email != null; }
     function mail() { return request.auth.token.email.lower(); }
 
-    // OWNER: akses penuh. Samakan dengan OWNER_EMAILS di index.html
-    function isOwner() { return signedIn() && mail() in ['gandhiawan13@gmail.com', 'gandhiawwan@gmail.com']; }
+    // Daftar owner & crew tambahan diatur dari aplikasi (Pengaturan > Akses Tim)
+    // dan disimpan di dokumen shops/habite/config/roles
+    function hasRoles() { return exists(/databases/$(database)/documents/shops/habite/config/roles); }
+    function roles() { return get(/databases/$(database)/documents/shops/habite/config/roles).data; }
 
-    // CREW: tambahkan email crew di sini
-    function isCrew() { return signedIn() && mail() in [
-      'crew1@gmail.com'
-    ]; }
+    // OWNER utama (selalu bisa masuk, tidak bergantung dokumen roles)
+    function isOwner() {
+      return signedIn() && (
+        mail() in ['gandhiawan13@gmail.com', 'gandhiawwan@gmail.com']
+        || (hasRoles() && mail() in roles().owners)
+      );
+    }
+    function isCrew() { return signedIn() && hasRoles() && mail() in roles().crew; }
 
     match /shops/habite/{col}/{id} {
       allow read: if isOwner() || isCrew();
