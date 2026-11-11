@@ -5,7 +5,7 @@ service cloud.firestore {
     function mail() { return request.auth.token.email.lower(); }
 
     // OWNER: akses penuh. Samakan dengan OWNER_EMAILS di index.html
-    function isOwner() { return signedIn() && mail() in ['gandhiawan13@gmail.com']; }
+    function isOwner() { return signedIn() && mail() in ['gandhiawan13@gmail.com', 'gandhiawwan@gmail.com']; }
 
     // CREW: tambahkan email crew di sini
     function isCrew() { return signedIn() && mail() in [
