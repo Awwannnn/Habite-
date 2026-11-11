@@ -20,6 +20,9 @@
 
 <style>
   /* Komponen kustom. CSS Tailwind hasil kompilasi ada di blok TW-START/TW-END di bawah; jika menambah kelas Tailwind baru, kompilasi ulang (lihat rebuild_css.py). */
+  html, body, button, a, input, select, label { touch-action:manipulation; }
+  body[data-role="crew"] .owner-only { display:none !important; }
+  body:not([data-role="crew"]) .crew-only { display:none !important; }
   body { font-variant-numeric:tabular-nums; background:#f3f4f6; color:#1f2937; -webkit-tap-highlight-color:transparent; margin:0; height:100vh; height:100dvh; overflow:hidden; display:flex; justify-content:center; }
   .app-container { width:100%; max-width:480px; background:#fff; height:100%; position:relative; box-shadow:0 0 20px rgba(0,0,0,.1); display:flex; flex-direction:column; overflow:hidden; }
   .hide-scrollbar::-webkit-scrollbar { display:none; }
@@ -78,9 +81,10 @@
         <p class="text-[11px]" id="sync-status"></p>
       </div>
     </div>
-    <button onclick="openKasModal()" class="bg-brand-800 hover:bg-brand-700 px-3 min-h-[44px] rounded-lg text-sm flex items-center gap-1 transition">
+    <button onclick="openKasModal()" class="owner-only bg-brand-800 hover:bg-brand-700 px-3 min-h-[44px] rounded-lg text-sm flex items-center gap-1 transition">
       <i class="ph ph-wallet" aria-hidden="true"></i> Kas
     </button>
+    <button onclick="cloudLogout()" class="crew-only bg-brand-800 hover:bg-brand-700 px-3 min-h-[44px] rounded-lg text-sm flex items-center gap-1 transition"><i class="ph ph-sign-out" aria-hidden="true"></i> Keluar</button>
   </header>
 
   <div class="main-content" id="main-content">
@@ -89,12 +93,14 @@
     <main id="view-dashboard" class="view-section active p-4">
       <h2 class="text-lg font-semibold mb-3">Ringkasan Hari Ini</h2>
       <section class="card p-4 mb-3" aria-label="Ringkasan hari ini">
-        <p class="text-xs font-medium text-gray-600">Laba bersih hari ini</p>
-        <p class="text-3xl font-bold tracking-tight mt-0.5 text-green-700" id="dash-laba">Rp 0</p>
+        <p class="owner-only text-xs font-medium text-gray-600">Laba bersih hari ini</p>
+        <p class="owner-only text-3xl font-bold tracking-tight mt-0.5 text-green-700" id="dash-laba">Rp 0</p>
+        <p class="crew-only text-xs font-medium text-gray-600">Penjualan hari ini</p>
+        <p class="crew-only text-3xl font-bold tracking-tight mt-0.5" id="dash-penjualan-big">Rp 0</p>
         <div class="grid grid-cols-3 gap-3 mt-4 pt-3 border-t border-gray-100">
-          <div class="min-w-0"><p class="text-xs text-gray-600">Penjualan</p><p class="text-sm font-bold break-words" id="dash-penjualan">Rp 0</p><p class="text-[11px] mt-0.5" id="dash-penjualan-trend"></p></div>
+          <div class="owner-only min-w-0"><p class="text-xs text-gray-600">Penjualan</p><p class="text-sm font-bold break-words" id="dash-penjualan">Rp 0</p><p class="text-[11px] mt-0.5" id="dash-penjualan-trend"></p></div>
           <div class="min-w-0"><p class="text-xs text-gray-600">Transaksi</p><p class="text-sm font-bold" id="dash-transaksi">0</p></div>
-          <div class="min-w-0"><p class="text-xs text-gray-600">Pengeluaran</p><p class="text-sm font-bold text-red-600 break-words" id="dash-pengeluaran">Rp 0</p></div>
+          <div class="owner-only min-w-0"><p class="text-xs text-gray-600">Pengeluaran</p><p class="text-sm font-bold text-red-600 break-words" id="dash-pengeluaran">Rp 0</p></div>
         </div>
       </section>
 
@@ -340,11 +346,11 @@
     <button data-tab="dashboard" onclick="switchTab('dashboard')" class="nav-btn min-w-[68px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0 text-brand-700"><i class="ph-fill ph-squares-four text-xl" aria-hidden="true"></i><span>Beranda</span></button>
     <button data-tab="penjualan" onclick="switchTab('penjualan')" class="nav-btn min-w-[68px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-receipt text-xl" aria-hidden="true"></i><span>Penjualan</span></button>
     <button data-tab="pengeluaran" onclick="switchTab('pengeluaran')" class="nav-btn min-w-[76px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-trend-down text-xl" aria-hidden="true"></i><span>Pengeluaran</span></button>
-    <button data-tab="hpp" onclick="switchTab('hpp')" class="nav-btn min-w-[78px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-calculator text-xl" aria-hidden="true"></i><span>HPP & Resep</span></button>
+    <button data-tab="hpp" onclick="switchTab('hpp')" class="owner-only nav-btn min-w-[78px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-calculator text-xl" aria-hidden="true"></i><span>HPP & Resep</span></button>
     <button data-tab="stok" onclick="switchTab('stok')" class="nav-btn min-w-[60px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-clipboard-text text-xl" aria-hidden="true"></i><span>Stok</span></button>
-    <button data-tab="menu" onclick="switchTab('menu')" class="nav-btn min-w-[60px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-hamburger text-xl" aria-hidden="true"></i><span>Menu</span></button>
-    <button data-tab="laporan" onclick="switchTab('laporan')" class="nav-btn min-w-[68px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-chart-bar text-xl" aria-hidden="true"></i><span>Laporan</span></button>
-    <button data-tab="pengaturan" onclick="switchTab('pengaturan')" class="nav-btn min-w-[76px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-gear text-xl" aria-hidden="true"></i><span>Pengaturan</span></button>
+    <button data-tab="menu" onclick="switchTab('menu')" class="owner-only nav-btn min-w-[60px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-hamburger text-xl" aria-hidden="true"></i><span>Menu</span></button>
+    <button data-tab="laporan" onclick="switchTab('laporan')" class="owner-only nav-btn min-w-[68px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-chart-bar text-xl" aria-hidden="true"></i><span>Laporan</span></button>
+    <button data-tab="pengaturan" onclick="switchTab('pengaturan')" class="owner-only nav-btn min-w-[76px] flex-1 py-3 flex flex-col items-center gap-1 shrink-0"><i class="ph-fill ph-gear text-xl" aria-hidden="true"></i><span>Pengaturan</span></button>
   </nav>
 
   <!-- DIALOG KONFIRMASI -->
@@ -365,7 +371,7 @@
     <div class="bg-gray-50 w-full max-w-[480px] mx-auto rounded-t-2xl h-[95vh] flex flex-col overflow-hidden">
       <div class="bg-white p-4 border-b flex justify-between items-center shrink-0">
         <h3 class="font-bold text-lg" id="sale-modal-title">Catat Penjualan</h3>
-        <button onclick="closeModal(\'modal-sale\')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
+        <button onclick="closeModal('modal-sale')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
       </div>
 
       <div id="sale-step-1" class="flex-1 overflow-y-auto p-2">
@@ -426,7 +432,7 @@
   <!-- MODAL: PENGELUARAN -->
   <div id="modal-expense" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[92vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-lg" id="exp-modal-title">Catat Pengeluaran</h3><button onclick="closeModal(\'modal-expense\')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
+      <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-lg" id="exp-modal-title">Catat Pengeluaran</h3><button onclick="closeModal('modal-expense')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
       <form onsubmit="saveExpense(event)" class="space-y-3">
         <input type="hidden" id="exp-id">
         <div><label class="lbl">Tanggal</label><input type="date" id="exp-date" required class="inp"></div>
@@ -447,7 +453,7 @@
     <div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[92vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b pb-2 mb-3">
         <h3 class="font-bold text-lg" id="ingr-modal-title">Bahan Baku</h3>
-        <button onclick="closeModal(\'modal-ingr\')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
+        <button onclick="closeModal('modal-ingr')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
       </div>
       <form onsubmit="saveIngredient(event)" class="space-y-3">
         <input type="hidden" id="ingr-id">
@@ -476,7 +482,7 @@
     <div class="bg-white w-full max-w-[480px] mx-auto rounded-t-2xl h-[92vh] flex flex-col overflow-hidden">
       <div class="p-4 border-b flex justify-between items-center shrink-0">
         <div><h3 class="font-bold text-lg" id="rec-modal-title">Resep</h3><p class="text-xs text-brand-700" id="rec-modal-subtitle"></p></div>
-        <button onclick="closeModal(\'modal-recipe\')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
+        <button onclick="closeModal('modal-recipe')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
       </div>
       <div class="flex-1 overflow-y-auto p-4">
         <div id="rec-base-area" class="hidden mb-4 bg-blue-50 p-3 rounded-xl space-y-2">
@@ -546,7 +552,7 @@
     <div class="bg-white w-full max-w-[480px] mx-auto rounded-t-2xl h-[95vh] flex flex-col overflow-hidden">
       <div class="p-4 border-b flex justify-between items-center shrink-0">
         <div><h3 class="font-bold text-lg">Stock Opname</h3><p class="text-xs text-gray-500">Isi stok fisik hasil hitung. Kosongkan bahan yang tidak dihitung.</p></div>
-        <button onclick="closeModal(\'modal-opname\')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
+        <button onclick="closeModal('modal-opname')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
       </div>
       <div class="px-4 pt-3 shrink-0 space-y-2">
         <input type="text" id="op-search" placeholder="Cari bahan..." class="inp" oninput="renderOpnameRows()">
@@ -558,7 +564,7 @@
       </div>
       <div class="flex-1 overflow-y-auto p-4 space-y-2" id="op-rows"></div>
       <div class="shrink-0 bg-white border-t p-4 shadow-[0_-10px_20px_rgba(0,0,0,0.1)]">
-        <div class="flex justify-between text-sm mb-2"><span id="op-count">0 bahan dihitung</span><span id="op-total" class="font-bold"></span></div>
+        <div class="flex justify-between text-sm mb-2"><span id="op-count">0 bahan dihitung</span><span id="op-total" class="owner-only font-bold"></span></div>
         <button onclick="saveOpname()" class="w-full bg-brand-700 text-white py-3 rounded-xl font-bold active:scale-95 transition">Simpan Opname</button>
       </div>
     </div>
@@ -567,7 +573,7 @@
   <!-- MODAL: DETAIL OPNAME -->
   <div id="modal-opdetail" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[92vh] overflow-y-auto">
-      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg">Detail Opname</h3><button onclick="closeModal(\'modal-opdetail\')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
+      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg">Detail Opname</h3><button onclick="closeModal('modal-opdetail')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
       <div id="opd-body" class="text-sm space-y-2 mb-3"></div>
       <button onclick="deleteOpname()" class="w-full bg-red-50 text-red-700 py-2 rounded-xl text-sm font-semibold">Hapus Opname Ini</button>
     </div>
@@ -576,7 +582,7 @@
   <!-- MODAL: STOK MASUK -->
   <div id="modal-stockin" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[92vh] overflow-y-auto">
-      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg">Stok Masuk (Pembelian)</h3><button onclick="closeModal(\'modal-stockin\')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
+      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg">Stok Masuk (Pembelian)</h3><button onclick="closeModal('modal-stockin')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
       <div class="space-y-3">
         <div><label class="lbl">Bahan</label><select id="si-ing" class="inp" onchange="siUnits()"></select></div>
         <div class="flex gap-2">
@@ -595,7 +601,7 @@
   <!-- MODAL: KEMASAN -->
   <div id="modal-pack" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[92vh] overflow-y-auto">
-      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg" id="pack-modal-title">Kemasan</h3><button onclick="closeModal(\'modal-pack\')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
+      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg" id="pack-modal-title">Kemasan</h3><button onclick="closeModal('modal-pack')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
       <p class="text-xs text-gray-500 mb-3">"Per porsi" dihitung untuk setiap burger yang memakai kemasan. "Per pesanan" dihitung sekali per transaksi (contoh: paper bag).</p>
       <div id="pack-rows" class="space-y-2 mb-3"></div>
       <div class="flex gap-2 mb-3"><select id="pack-add-select" class="inp flex-1"></select><button onclick="packAddRow()" class="bg-gray-800 text-white px-3 rounded-lg text-sm font-medium">+ Tambah</button></div>
@@ -607,7 +613,7 @@
   <!-- MODAL: MENU -->
   <div id="modal-menu" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[92vh] overflow-y-auto">
-      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg" id="menu-modal-title">Menu</h3><button onclick="closeModal(\'modal-menu\')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
+      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg" id="menu-modal-title">Menu</h3><button onclick="closeModal('modal-menu')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
       <form onsubmit="saveMenu(event)" class="space-y-3">
         <input type="hidden" id="menu-id">
         <div><label class="lbl">Nama Menu</label><input type="text" id="menu-name" required class="inp"></div>
@@ -631,7 +637,7 @@
   <!-- MODAL: KAS HARIAN -->
   <div id="modal-kas" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl p-4 max-h-[92vh] overflow-y-auto">
-      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg">Kas Harian (Tutup Kasir)</h3><button onclick="closeModal(\'modal-kas\')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
+      <div class="flex justify-between items-center border-b pb-2 mb-3"><h3 class="font-bold text-lg">Kas Harian (Tutup Kasir)</h3><button onclick="closeModal('modal-kas')" class="icon-btn" aria-label="Tutup"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
       <div class="space-y-3">
         <div><label class="lbl">Tanggal</label><input type="date" id="kas-date" class="inp" onchange="loadKas()"></div>
         <div><label class="lbl">Modal Awal Kas (Rp)</label><input type="text" inputmode="decimal" autocomplete="off" id="kas-open" min="0" class="inp" oninput="calcKas()"></div>
@@ -749,6 +755,17 @@ function showToast(msg, type = 'success') {
   showToast._t = setTimeout(() => t.classList.remove('show'), 2800);
 }
 /* Modal: fokus masuk/kembali, Esc menutup, Tab terkurung di dalam modal */
+/* ---------- Peran: owner (semua) / crew (penjualan, pengeluaran, stok) ---------- */
+const OWNER_EMAILS = ['gandhiawan13@gmail.com'];   // semua email lain yang login = crew
+const OWNER_TABS = ['hpp', 'menu', 'laporan', 'pengaturan'];
+const CREW_CREATE = ['sales', 'expenses', 'stockIns', 'opnames'];   // koleksi yang boleh ditambah crew
+let ROLE = 'owner';
+const isOwner = () => ROLE === 'owner';
+function applyRole(email) {
+  ROLE = OWNER_EMAILS.map(x => x.toLowerCase()).includes(String(email || '').toLowerCase()) ? 'owner' : 'crew';
+  document.body.dataset.role = ROLE;
+  if (!isOwner() && OWNER_TABS.includes(currentTab)) switchTab('dashboard');
+}
 const modalReturn = {};
 function openModal(id) {
   const m = $(id); modalReturn[id] = document.activeElement;
@@ -996,6 +1013,7 @@ function packagingCost(ch, itemCount) {
 /* ---------- Navigasi ---------- */
 let currentTab = 'dashboard';
 function switchTab(tab) {
+  if (!isOwner() && OWNER_TABS.includes(tab)) tab = 'dashboard';
   currentTab = tab;
   document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
   $('view-' + tab).classList.add('active');
@@ -1045,11 +1063,11 @@ function updateDashboard() {
   const exp = sum(te, e => e.amount);
   const net = rev - commOf(ts) - packOf(ts) - cogsOf(ts) - sum(te.filter(isDeducted), e => e.amount);
 
-  $('dash-penjualan').innerText = formatIDR(rev);
+  $('dash-penjualan').innerText = formatIDR(rev); $('dash-penjualan-big').innerText = formatIDR(rev);
   $('dash-transaksi').innerText = ts.length;
   $('dash-pengeluaran').innerText = formatIDR(exp);
   $('dash-laba').innerText = formatIDR(net);
-  $('dash-laba').className = 'text-3xl font-bold tracking-tight mt-0.5 ' + (net < 0 ? 'text-red-600' : 'text-green-700');
+  $('dash-laba').className = 'owner-only text-3xl font-bold tracking-tight mt-0.5 ' + (net < 0 ? 'text-red-600' : 'text-green-700');
 
   const tr = $('dash-penjualan-trend');
   if (revY > 0) {
@@ -1061,14 +1079,14 @@ function updateDashboard() {
 
   // Peringatan menu
   const warns = [];
-  data.menus.filter(m => m.active).forEach(m => { const is = menuIssues(m); if (is.length) warns.push(`${m.name}: ${is.join(', ')}`); });
+  if (isOwner()) data.menus.filter(m => m.active).forEach(m => { const is = menuIssues(m); if (is.length) warns.push(`${m.name}: ${is.join(', ')}`); });
   if (data.ingredients.some(i => i.minStock > 0)) {
     const st = computeStock();
     data.ingredients.forEach(i => { if (isLow(i, st[i.id])) warns.unshift(`Stok ${i.name} hampir habis (${fmtQty(st[i.id].system)} ${i.baseUnit})`); });
   }
   $('dash-warnings').innerHTML = warns.slice(0, 4).map(w =>
     `<div class="bg-red-50 text-red-700 text-[11px] p-2 rounded border border-red-100 flex items-start gap-1"><i class="ph-fill ph-warning mt-0.5" aria-hidden="true"></i><span>${esc(w)}</span></div>`).join('')
-    + (warns.length > 4 ? `<p class="text-[11px] text-gray-500">+${warns.length - 4} peringatan lainnya (lihat tab HPP & Resep)</p>` : '');
+    + (warns.length > 4 ? `<p class="text-[11px] text-gray-500">+${warns.length - 4} peringatan lainnya${isOwner() ? ' (lihat tab HPP & Resep)' : ''}</p>` : '');
 
   // Top 5 menu bulan ini
   const mp = today.slice(0, 7);
@@ -1127,6 +1145,7 @@ let posCommInit = false;
 let posPackManual = null; // null = pakai hitungan otomatis
 
 function openSaleModal(id) {
+  if (id && !isOwner()) return;
   posEditId = id || null; posCart = {}; posCat = 'Semua'; posPackManual = null;
   const s = id ? data.sales.find(x => x.id === id) : null;
   $('sale-modal-title').innerText = s ? 'Edit Penjualan ' + s.invoice : 'Catat Penjualan';
@@ -1308,7 +1327,7 @@ function renderSales() {
       ${s.packagingCost > 0 ? `<p class="text-[11px] text-gray-500 mt-1">Biaya kemasan ${formatIDR(s.packagingCost)}</p>` : ''}
       ${s.note ? `<p class="text-[11px] text-gray-500 mt-1">Catatan: ${esc(s.note)}</p>` : ''}
       <div class="flex gap-3 justify-end mt-2 text-xs">
-        <button onclick="openSaleModal('${s.id}')" class="act text-brand-700 font-medium"><i class="ph ph-pencil-simple" aria-hidden="true"></i> Edit</button>
+        <button onclick="openSaleModal('${s.id}')" class="owner-only act text-brand-700 font-medium"><i class="ph ph-pencil-simple" aria-hidden="true"></i> Edit</button>
         <button onclick="deleteSale('${s.id}')" class="act text-red-600 font-medium"><i class="ph ph-trash" aria-hidden="true"></i> Hapus</button>
       </div>
     </div>`).join('') : emptyState('ph-receipt', 'Belum ada transaksi', 'Tekan "Catat" untuk menambah penjualan');
@@ -1319,6 +1338,7 @@ function clearSaleFilter() { $('filter-sale-date').value = ''; $('filter-sale-me
    PENGELUARAN
    ===================================================================== */
 function openExpenseModal(id) {
+  if (id && !isOwner()) return;
   const sel = $('exp-category');
   if (!sel.options.length) sel.innerHTML = EXP_CATS.map(c => `<option>${c}</option>`).join('');
   const e = id ? data.expenses.find(x => x.id === id) : null;
@@ -1343,6 +1363,7 @@ function saveExpense(ev) {
   saveData(); closeModal('modal-expense'); renderAll();
 }
 async function deleteExpense(id) {
+  if (!isOwner()) return;
   const e = data.expenses.find(x => x.id === id); if (!e) return;
   if (!(await ask(`Hapus pengeluaran "${e.note}" (${formatIDR(e.amount)})?`, { title: 'Hapus pengeluaran', ok: 'Hapus', danger: true }))) return;
   data.expenses = data.expenses.filter(x => x.id !== id); saveData(); showToast('Pengeluaran dihapus'); renderAll();
@@ -1361,8 +1382,8 @@ function renderExpenses() {
         <p class="font-bold text-red-600">${formatIDR(e.amount)}</p>
       </div>
       <div class="flex gap-3 justify-end mt-2 text-xs">
-        <button onclick="openExpenseModal('${e.id}')" class="act text-brand-700 font-medium"><i class="ph ph-pencil-simple" aria-hidden="true"></i> Edit</button>
-        <button onclick="deleteExpense('${e.id}')" class="act text-red-600 font-medium"><i class="ph ph-trash" aria-hidden="true"></i> Hapus</button>
+        <button onclick="openExpenseModal('${e.id}')" class="owner-only act text-brand-700 font-medium"><i class="ph ph-pencil-simple" aria-hidden="true"></i> Edit</button>
+        <button onclick="deleteExpense('${e.id}')" class="owner-only act text-red-600 font-medium"><i class="ph ph-trash" aria-hidden="true"></i> Hapus</button>
       </div>
     </div>`).join('') : emptyState('ph-trend-down', 'Belum ada pengeluaran', 'Tekan "Catat" untuk menambah pengeluaran');
 }
@@ -1572,11 +1593,10 @@ function refreshEditor(rebuildSelect) {
   if (ed.kind === 'menu') calcSim(); else renderBaseSummary();
 }
 function buildAddSelect() {
-  const used = new Set(edList().map(c => c.type + ':' + c.id));
   let html = '<option value="">+ Pilih bahan / resep dasar...</option><optgroup label="Bahan Baku">';
-  html += data.ingredients.filter(i => !used.has('ingredient:' + i.id)).map(i => `<option value="ingredient:${i.id}">${esc(i.name)} (${esc(i.baseUnit)})</option>`).join('') + '</optgroup>';
+  html += data.ingredients.map(i => `<option value="ingredient:${i.id}">${esc(i.name)} (${esc(i.baseUnit)})</option>`).join('') + '</optgroup>';
   if (ed.kind === 'menu') {
-    html += '<optgroup label="Resep Dasar">' + data.baseRecipes.filter(b => !used.has('baseRecipe:' + b.id)).map(b => `<option value="baseRecipe:${b.id}">${esc(b.name)} (${esc(b.yieldUnit)})</option>`).join('') + '</optgroup>';
+    html += '<optgroup label="Resep Dasar">' + data.baseRecipes.filter(b => !(ed.kind === 'base' && b.id === ed.id)).map(b => `<option value="baseRecipe:${b.id}">${esc(b.name)} (${esc(b.yieldUnit)})</option>`).join('') + '</optgroup>';
   }
   $('rec-add-select').innerHTML = html;
 }
@@ -1921,7 +1941,8 @@ function download(name, content, type) {
 /* =====================================================================
    KAS HARIAN
    ===================================================================== */
-function openKasModal() { $('kas-date').value = toDateStr(); loadKas(); openModal('modal-kas'); }
+function openKasModal() {
+  if (!isOwner()) return; $('kas-date').value = toDateStr(); loadKas(); openModal('modal-kas'); }
 function loadKas() {
   const k = data.cash[$('kas-date').value] || {};
   $('kas-open').value = k.open ?? ''; $('kas-actual').value = k.actual ?? '';
@@ -2066,8 +2087,13 @@ async function commitOps(ops) {
 }
 function diffInto(name, cur, ops) {
   const last = lastSynced[name] || new Map();
-  cur.forEach((j, id) => { if (last.get(id) !== canon(j)) ops.push({ type: 'set', ref: colRef(name).doc(id), data: j }); });
-  last.forEach((s, id) => { if (!cur.has(id)) ops.push({ type: 'delete', ref: colRef(name).doc(id) }); });
+  cur.forEach((j, id) => {
+    const prev = last.get(id);
+    if (prev === canon(j)) return;
+    if (!isOwner() && (prev !== undefined || !CREW_CREATE.includes(name))) return;
+    ops.push({ type: 'set', ref: colRef(name).doc(id), data: j });
+  });
+  last.forEach((s, id) => { if (!cur.has(id) && (isOwner() || name === 'sales')) ops.push({ type: 'delete', ref: colRef(name).doc(id) }); });
   lastSynced[name] = new Map([...cur].map(([id, j]) => [id, canon(j)]));
 }
 function buildCurrent() {
@@ -2082,7 +2108,7 @@ function cloudPush() {
   const ops = [], maps = buildCurrent();
   Object.keys(maps).forEach(name => diffInto(name, maps[name], ops));
   const cfg = configDoc();
-  if (lastSynced.config !== canon(cfg)) { ops.push({ type: 'set', ref: cfgRef(), data: cfg }); lastSynced.config = canon(cfg); }
+  if (isOwner() && lastSynced.config !== canon(cfg)) { ops.push({ type: 'set', ref: cfgRef(), data: cfg }); lastSynced.config = canon(cfg); }
   if (!ops.length) return;
   pendingCommits++; refreshStatus();
   commitOps(ops).then(() => { pendingCommits--; refreshStatus(); }).catch(e => { pendingCommits--; cloudErr(e); });
@@ -2119,7 +2145,7 @@ function cloudInit() {
   db.enablePersistence({ synchronizeTabs: true }).catch(() => {}); // cache offline
   window.addEventListener('online', refreshStatus); window.addEventListener('offline', refreshStatus);
   auth.onAuthStateChanged(u => {
-    if (u) { $('set-cloud-email').innerText = u.email; $('login-screen').classList.add('hidden'); $('cloud-loading').classList.remove('hidden'); cloudStart(); }
+    if (u) { applyRole(u.email); $('set-cloud-email').innerText = u.email + (isOwner() ? ' (Owner)' : ' (Crew)'); $('login-screen').classList.add('hidden'); $('cloud-loading').classList.remove('hidden'); cloudStart(); }
     else { cloudStop(); $('cloud-loading').classList.add('hidden'); $('login-screen').classList.remove('hidden'); }
   });
 }
@@ -2145,6 +2171,7 @@ async function cloudStart() {
     try { snap = await cfgRef().get({ source: 'server' }); }
     catch (e) { if (e && e.code === 'permission-denied') throw e; fromServer = false; snap = await cfgRef().get().catch(() => null); }
     if (!snap || (!snap.exists && !fromServer)) throw new Error('Tidak ada koneksi internet. Coba lagi saat online.');
+    if (!snap.exists && !isOwner()) { $('cloud-loading').classList.add('hidden'); await auth.signOut(); $('login-error').innerText = 'Data toko belum disiapkan. Minta owner login dulu.'; return; }
     if (!snap.exists) {
       $('cloud-loading').classList.add('hidden');
       const ok = await ask('Database cloud masih kosong.\n\nUnggah data dari perangkat ini sebagai data awal?\n\nPilih Batal jika perangkat ini bukan yang berisi data utama.', { title: 'Unggah data awal?', ok: 'Unggah' });
@@ -2253,7 +2280,7 @@ function diffLabel(sys, actual, unit, uc) {
   if (sys === null) return '<span class="text-gray-500">Hitungan pertama, jadi acuan stok</span>';
   const d = actual - sys, v = Math.round(d * uc);
   if (Math.abs(d) < 0.0001) return '<span class="text-green-700">Pas</span>';
-  return `<span class="${d < 0 ? 'text-red-600' : 'text-blue-700'}">${d > 0 ? 'Lebih ' : 'Kurang '}${fmtQty(Math.abs(d))} ${esc(unit)} (${v < 0 ? '-' : '+'}${formatIDR(Math.abs(v))})</span>`;
+  return `<span class="${d < 0 ? 'text-red-600' : 'text-blue-700'}">${d > 0 ? 'Lebih ' : 'Kurang '}${fmtQty(Math.abs(d))} ${esc(unit)} ${isOwner() ? ` (${v < 0 ? '-' : '+'}${formatIDR(Math.abs(v))})` : ''}</span>`;
 }
 
 /* ---------- Tampilan tab Stok ---------- */
@@ -2290,7 +2317,7 @@ function renderOpnameHistory() {
     const tot = sum(o.items, x => x.diffValue);
     return `<div class="card p-3 cursor-pointer" onclick="openOpnameDetail('${o.id}')"><div class="flex justify-between">
       <div><h3 class="font-bold text-sm">${fmtDateTime(o.at)}</h3><p class="text-[11px] text-gray-500">${o.items.length} bahan${o.note ? ' · ' + esc(o.note) : ''}</p></div>
-      <div class="text-right"><p class="font-bold text-sm ${tot < 0 ? 'text-red-600' : tot > 0 ? 'text-green-700' : 'text-gray-500'}">${tot === 0 ? 'Pas' : (tot < 0 ? '- ' : '+ ') + formatIDR(Math.abs(tot))}</p><p class="text-[11px] text-gray-500">selisih nilai</p></div>
+      <div class="owner-only text-right"><p class="font-bold text-sm ${tot < 0 ? 'text-red-600' : tot > 0 ? 'text-green-700' : 'text-gray-500'}">${tot === 0 ? 'Pas' : (tot < 0 ? '- ' : '+ ') + formatIDR(Math.abs(tot))}</p><p class="text-[11px] text-gray-500">selisih nilai</p></div>
     </div></div>`;
   }).join('') : emptyState('ph-clipboard-text', 'Belum ada stock opname', 'Tekan "Stock Opname" untuk mulai menghitung stok fisik');
 }
@@ -2404,8 +2431,8 @@ function openOpnameDetail(id) {
   $('opd-body').innerHTML = `<p class="text-xs text-gray-500">${fmtDateTime(o.at)}${o.note ? ' · ' + esc(o.note) : ''}</p>` +
     o.items.map(x => `<div class="border-b pb-2"><div class="flex justify-between"><b>${esc(x.name)}</b><span class="text-xs">Fisik ${fmtQty(x.actual)} ${esc(x.unit)}</span></div>
       <p class="text-[11px] text-gray-500">Sistem: ${x.system === null ? '-' : fmtQty(x.system) + ' ' + esc(x.unit)}</p>
-      <p class="text-[11px]">${x.diff === null ? '<span class="text-gray-500">Hitungan pertama</span>' : Math.abs(x.diff) < 0.0001 ? '<span class="text-green-700">Pas</span>' : `<span class="${x.diff < 0 ? 'text-red-600' : 'text-blue-700'}">${x.diff > 0 ? 'Lebih ' : 'Kurang '}${fmtQty(Math.abs(x.diff))} ${esc(x.unit)} (${x.diffValue < 0 ? '-' : '+'}${formatIDR(Math.abs(x.diffValue))})</span>`}</p></div>`).join('') +
-    `<div class="flex justify-between font-bold pt-1"><span>Total selisih nilai</span><span class="${tot < 0 ? 'text-red-600' : tot > 0 ? 'text-green-700' : ''}">${tot === 0 ? 'Rp 0' : (tot < 0 ? '- ' : '+ ') + formatIDR(Math.abs(tot))}</span></div>`;
+      <p class="text-[11px]">${x.diff === null ? '<span class="text-gray-500">Hitungan pertama</span>' : Math.abs(x.diff) < 0.0001 ? '<span class="text-green-700">Pas</span>' : `<span class="${x.diff < 0 ? 'text-red-600' : 'text-blue-700'}">${x.diff > 0 ? 'Lebih ' : 'Kurang '}${fmtQty(Math.abs(x.diff))} ${esc(x.unit)}${isOwner() ? ` (${x.diffValue < 0 ? '-' : '+'}${formatIDR(Math.abs(x.diffValue))})` : ''}</span>`}</p></div>`).join('') +
+    `<div class="owner-only flex justify-between font-bold pt-1"><span>Total selisih nilai</span><span class="${tot < 0 ? 'text-red-600' : tot > 0 ? 'text-green-700' : ''}">${tot === 0 ? 'Rp 0' : (tot < 0 ? '- ' : '+ ') + formatIDR(Math.abs(tot))}</span></div>`;
   openModal('modal-opdetail');
 }
 async function deleteOpname() {

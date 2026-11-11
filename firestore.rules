@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null && request.auth.token.email != null; }
+    function mail() { return request.auth.token.email.lower(); }
+
+    // OWNER: akses penuh. Samakan dengan OWNER_EMAILS di index.html
+    function isOwner() { return signedIn() && mail() in ['gandhiawan13@gmail.com']; }
+
+    // CREW: tambahkan email crew di sini
+    function isCrew() { return signedIn() && mail() in [
+      'crew1@gmail.com'
+    ]; }
+
+    match /shops/habite/{col}/{id} {
+      allow read: if isOwner() || isCrew();
+      allow write: if isOwner();
+      // crew hanya boleh MENAMBAH penjualan, pengeluaran, stok masuk, dan opname
+      allow create: if isCrew() && col in ['sales', 'expenses', 'stockIns', 'opnames'];
+      // crew hanya boleh MENGHAPUS penjualan
+      allow delete: if isCrew() && col == 'sales';
+    }
+  }
+}
